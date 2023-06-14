@@ -1,7 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
-//  Import libraries / modules
+//  Import libraries
 import java.math.BigDecimal;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
