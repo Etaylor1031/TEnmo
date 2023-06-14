@@ -36,17 +36,17 @@ public class App {
             } else if (menuSelection == 2) {
                 handleLogin();
             } else if (menuSelection != 0) {
-                consoleService.displayMessage("Invalid Selection");
+                consoleService.printMessage("Invalid Selection");
                 consoleService.pause();
             }
         }
     }
 
     private void handleRegister() {
-        consoleService.displayMessage("Please register a new user account");
+        consoleService.printMessage("Please register a new user account");
         UserCredentials credentials = consoleService.promptForCredentials();
         if (authenticationService.register(credentials)) {
-            consoleService.displayMessage("Registration successful. You can now login.");
+            consoleService.printMessage("Registration successful. You can now login.");
         } else {
             consoleService.printErrorMessage();
         }
@@ -78,7 +78,7 @@ public class App {
             } else if (menuSelection == 0) {
                 continue;
             } else {
-                consoleService.displayMessage("Invalid Selection");
+                consoleService.printMessage("Invalid Selection");
             }
             consoleService.pause();
         }

@@ -88,7 +88,7 @@ public class ConsoleService {
         System.out.println("An error occurred. Check the log for details.");
     }
 
-    public void displayMessage(String message) {
+    public void printMessage(String message) {
         System.out.println(message);
     }
 
