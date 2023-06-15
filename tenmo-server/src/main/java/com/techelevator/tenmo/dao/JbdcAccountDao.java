@@ -3,12 +3,20 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.pojos.UserPojo;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.util.List;
 
 public class JbdcAccountDao implements AccountDao {
+    private final JdbcTemplate jdbcTemplate;
+
+    public JbdcAccountDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Override
     public List<Transfer> findTransfersByUserId(int userId) {
         return null;
