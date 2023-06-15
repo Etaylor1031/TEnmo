@@ -1,13 +1,15 @@
 package com.techelevator.tenmo.model;
 
+import com.techelevator.tenmo.pojos.UserPojo;
+
 import java.math.BigDecimal;
 
 public class Transfer {
     private int transferId;
-    private int transferType;
-    private int transferStatus;
-    private User fromUser;
-    private User toUser;
+    private TransferType transferType;
+    private TransferStatus transferStatus;
+    private UserPojo fromUser;
+    private UserPojo toUser;
     private BigDecimal transferAmount;
 
     public int getTransferId() {
@@ -18,35 +20,35 @@ public class Transfer {
         this.transferId = transferId;
     }
 
-    public int getTransferType() {
+    public TransferType getTransferType() {
         return transferType;
     }
 
-    public void setTransferType(int transferType) {
+    public void setTransferType(TransferType transferType) {
         this.transferType = transferType;
     }
 
-    public int getTransferStatus() {
+    public TransferStatus getTransferStatus() {
         return transferStatus;
     }
 
-    public void setTransferStatus(int transferStatus) {
+    public void setTransferStatus(TransferStatus transferStatus) {
         this.transferStatus = transferStatus;
     }
 
-    public User getFromUser() {
+    public UserPojo getFromUser() {
         return fromUser;
     }
 
-    public void setFromUser(User fromUser) {
+    public void setFromUser(UserPojo fromUser) {
         this.fromUser = fromUser;
     }
 
-    public User getToUser() {
+    public UserPojo getToUser() {
         return toUser;
     }
 
-    public void setToUser(User toUser) {
+    public void setToUser(UserPojo toUser) {
         this.toUser = toUser;
     }
 

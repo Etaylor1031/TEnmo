@@ -1,10 +1,12 @@
 package com.techelevator.tenmo.model;
 
+import com.techelevator.tenmo.pojos.UserPojo;
+
 import java.math.BigDecimal;
 
 public class Account {
     private int accountId;
-    private User user;
+    private UserPojo user;
     private BigDecimal balance;
 
     public int getAccountId() {
@@ -15,11 +17,11 @@ public class Account {
         this.accountId = accountId;
     }
 
-    public User getUser() {
+    public UserPojo getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserPojo user) {
         this.user = user;
     }
 
