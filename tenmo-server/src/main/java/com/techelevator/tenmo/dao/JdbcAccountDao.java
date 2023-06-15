@@ -7,14 +7,14 @@ import com.techelevator.tenmo.pojos.UserPojo;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
- class JdbcAccountDao implements AccountDao {
+@Component
+public class JdbcAccountDao implements AccountDao {
     private final JdbcTemplate jdbcTemplate;
 
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
@@ -96,66 +96,66 @@ import java.util.List;
         jdbcTemplate.update(sql, transfer.getTransferStatus(), transfer.getTransferId());
     }
 
-     @Override
-     public void updateBalance(int id, BigDecimal newSenderBalance) {
-         String sql = "UPDATE accounts SET balance = ? WHERE account_id = ?";
-         jdbcTemplate.update(sql, newSenderBalance, id);
-     }
+    @Override
+    public void updateBalance(int id, BigDecimal newSenderBalance) {
+        String sql = "UPDATE accounts SET balance = ? WHERE account_id = ?";
+        jdbcTemplate.update(sql, newSenderBalance, id);
+    }
 
 
-     @Override
-     public List<Transfer> getTransfersByUserId(int userId) {
-         List<Transfer> transfers = new ArrayList<>();
-         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
-                 "FROM transfers " +
-                 "WHERE from_user_id = ? OR to_user_id = ?";
-         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
-         while (results.next()) {
-             Transfer transfer = mapRowToTransfer(results);
-             transfers.add(transfer);
-         }
-         return transfers;
-     }
+    @Override
+    public List<Transfer> getTransfersByUserId(int userId) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
+                "FROM transfers " +
+                "WHERE from_user_id = ? OR to_user_id = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
+        while (results.next()) {
+            Transfer transfer = mapRowToTransfer(results);
+            transfers.add(transfer);
+        }
+        return transfers;
+    }
 
-     @Override
-     public Transfer getTransferDetails(int transferId) {
-         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
-                 "FROM transfers " +
-                 "WHERE transfer_id = ?";
-         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
-         if (results.next()) {
-             return mapRowToTransfer(results);
-         }
-         return null;
-     }
-
-
-     @Override
-     public List<Account> getAllAccounts() {
-         List<Account> accounts = new ArrayList<>();
-         String sql = "SELECT account_id, user_id, balance FROM accounts";
-         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-         while (results.next()) {
-             Account account = mapRowToAccount(results);
-             accounts.add(account);
-         }
-         return accounts;
-     }
-
-     @Override
-     public int getUserIdByUsername(String username) {
-         String sql = "SELECT user_id FROM users WHERE username = ?";
-         try {
-             Integer userId = jdbcTemplate.queryForObject(sql, Integer.class, username);
-             return userId != null ? userId : 0; // Return 0 if userId is null
-         } catch (EmptyResultDataAccessException e) {
-             return 0; // Return 0 if the username is not found
-         }
-     }
+    @Override
+    public Transfer getTransferDetails(int transferId) {
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
+                "FROM transfers " +
+                "WHERE transfer_id = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+        if (results.next()) {
+            return mapRowToTransfer(results);
+        }
+        return null;
+    }
 
 
+    @Override
+    public List<Account> getAllAccounts() {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT account_id, user_id, balance FROM accounts";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while (results.next()) {
+            Account account = mapRowToAccount(results);
+            accounts.add(account);
+        }
+        return accounts;
+    }
 
-     private Transfer mapRowToTransfer(SqlRowSet results) {
+    @Override
+    public int getUserIdByUsername(String username) {
+        String sql = "SELECT user_id FROM users WHERE username = ?";
+        try {
+            Integer userId = jdbcTemplate.queryForObject(sql, Integer.class, username);
+            return userId != null ? userId : 0; // Return 0 if userId is null
+        } catch (EmptyResultDataAccessException e) {
+            return 0; // Return 0 if the username is not found
+        }
+    }
+
+
+
+    private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(results.getInt("transfer_id"));
         transfer.setTransferType(results.getInt("transfer_type_id"));

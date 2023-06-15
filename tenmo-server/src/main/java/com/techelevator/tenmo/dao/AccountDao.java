@@ -2,12 +2,10 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
-import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Repository
 public interface AccountDao {
     List<Transfer> findTransfersByUserId(int userId);
 

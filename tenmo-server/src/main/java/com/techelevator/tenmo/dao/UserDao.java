@@ -10,12 +10,9 @@ public interface UserDao {
 
     User getUserById(int id);
 
-
     int findIdByUsername(String username);
 
-    static User findByUsername(String username) {
-        return null;
-    }
+    User findByUsername(String username);
 
     boolean create(String username, String password);
 }
