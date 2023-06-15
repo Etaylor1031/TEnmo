@@ -22,7 +22,7 @@ public class Transfer {
         return transferType;
     }
 
-    public void setTransferType(TransferType transferType) {
+    public void setTransferType(int transferType) {
         this.transferType = transferType;
     }
 
@@ -30,7 +30,7 @@ public class Transfer {
         return transferStatus;
     }
 
-    public void setTransferStatus(TransferStatus transferStatus) {
+    public void setTransferStatus(int transferStatus) {
         this.transferStatus = transferStatus;
     }
 
