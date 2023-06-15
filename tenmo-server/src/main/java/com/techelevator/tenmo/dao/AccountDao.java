@@ -22,11 +22,15 @@ public interface AccountDao {
     void updateBalance(int id, BigDecimal newSenderBalance);
 
 
-    Account findAccountByUserId(int userId);
+
 
     List<Transfer> getTransfersByUserId(int userId);
 
     Transfer getTransferDetails(int transferId);
+
+    List<Account> getAllAccounts();
+
+    int getUserIdByUsername(String username);
 }
 
 
