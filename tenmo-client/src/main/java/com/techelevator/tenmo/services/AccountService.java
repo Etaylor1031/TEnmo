@@ -10,7 +10,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 
-public class Account {
+public class AccountService {
 
 
     //instance variable declaration
@@ -19,7 +19,7 @@ public class Account {
     private AuthenticatedUser currentUser;
 
     //constructor
-    public Account(String url, AuthenticatedUser currentUser) {
+    public AccountService(String url, AuthenticatedUser currentUser) {
         this.currentUser = currentUser;
         baseUrl= url;
     }
