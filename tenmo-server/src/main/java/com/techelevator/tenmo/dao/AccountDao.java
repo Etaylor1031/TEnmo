@@ -21,9 +21,6 @@ public interface AccountDao {
 
     void updateBalance(int id, BigDecimal newSenderBalance);
 
-
-
-
     List<Transfer> getTransfersByUserId(int userId);
 
     Transfer getTransferDetails(int transferId);
