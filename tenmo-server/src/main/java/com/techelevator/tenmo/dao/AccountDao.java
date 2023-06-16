@@ -15,14 +15,11 @@ public interface AccountDao {
 
     Transfer findTransferByTransferId(int transferId);
 
-    Transfer saveTransfer(Transfer transfer);
+    boolean saveTransfer(Transfer transfer);
 
     void updateTransferStatus(Transfer transfer);
 
     void updateBalance(int id, BigDecimal newSenderBalance);
-
-
-
 
     List<Transfer> getTransfersByUserId(int userId);
 
