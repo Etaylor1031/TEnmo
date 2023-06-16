@@ -4,6 +4,7 @@ import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferStatus;
 import com.techelevator.tenmo.pojos.UserPojo;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -73,22 +74,27 @@ public class JdbcAccountDao implements AccountDao {
         String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount) " +
                 "VALUES (?, ?, ?, ?, ?) RETURNING transfer_id";
 
-        Integer transferId = jdbcTemplate.queryForObject(sql, new Object[]{
-                transfer.getTransferType(),
-                transfer.getTransferStatus(),
-                transfer.getFromUser(),
-                transfer.getToUser(),
-                transfer.getTransferAmount()
-        }, Integer.class);
+        try {
+            Integer transferId = jdbcTemplate.queryForObject(sql, Integer.class,
+                    transfer.getTransferType(),
+                    transfer.getTransferStatus(),
+                    transfer.getFromUser(),
+                    transfer.getToUser(),
+                    transfer.getTransferAmount());
 
-        if (transferId != null) {
-            transfer.setTransferId(transferId);
-            return transfer;
-        } else {
-            // Handle the case where the transfer ID is null (e.g., database error)
-            throw new RuntimeException("Failed to save transfer. Please try again.");
+            if (transferId != null) {
+                transfer.setTransferId(transferId);
+                return transfer;
+            } else {
+                // Handle the case where the transfer ID is null (e.g., database error)
+                throw new RuntimeException("Failed to save transfer. Please try again.");
+            }
+        } catch (DataAccessException e) {
+            // Handle the exception appropriately
+            throw new RuntimeException("Failed to save transfer. Please try again.", e);
         }
     }
+
 
     @Override
     public void updateTransferStatus(Transfer transfer) {
