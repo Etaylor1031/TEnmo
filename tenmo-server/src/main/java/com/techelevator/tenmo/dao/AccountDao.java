@@ -13,9 +13,13 @@ public interface AccountDao {
 
     BigDecimal findBalanceByUserId(int userId);
 
+    Account findAccountByAccountId(int accountId);
+
+    BigDecimal subtractBalance(int accountId, BigDecimal amountToSubtract);
+    BigDecimal addBalance(int accountId, BigDecimal amountToAdd);
     Transfer findTransferByTransferId(int transferId);
 
-    Transfer saveTransfer(Transfer transfer);
+    public Transfer saveTransfer(Transfer transfer);
 
     void updateTransferStatus(Transfer transfer);
 
