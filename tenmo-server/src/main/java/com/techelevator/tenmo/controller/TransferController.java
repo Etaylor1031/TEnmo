@@ -39,9 +39,33 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/send", method = RequestMethod.POST)
-    public boolean send(@RequestBody Transfer transfer) {
-        // Save Transfer
-        return accountDao.saveTransfer(transfer);
+    public String send(@RequestBody Transfer transfer) {
+        accountDao.saveTransfer(transfer);
+        accountDao.subtractBalance(transfer.getFromUser(), transfer.getTransferAmount());
+        accountDao.addBalance(transfer.getToUser(), transfer.getTransferAmount());
+
+        return "Success Sending Transfer";
+    }
+
+    private boolean checkValidTransaction(Transfer transfer) {
+        if(transfer.getFromUser() == transfer.getToUser()) {
+            System.out.println("Can't send to yourself");
+            return false;
+        }
+
+        if(transfer.getTransferAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) == 1) {
+            System.out.println("Insufficient funds");
+            return false;
+        }
+
+
+        if(transfer.getTransferAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
+            System.out.println("Invalid Transfer Amount");
+            return false;
+        }
+
+
+        return true;
     }
 
 }

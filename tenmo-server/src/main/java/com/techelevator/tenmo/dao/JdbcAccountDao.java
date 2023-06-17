@@ -3,6 +3,7 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferStatus;
+import com.techelevator.tenmo.model.TransferType;
 import com.techelevator.tenmo.pojos.UserPojo;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -43,9 +44,20 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public void updateBalance(int id, BigDecimal newSenderBalance) {
+    public Account findAccountByAccountId(int accountId) {
+        String sql = "SELECT account_id, user_id, balance FROM account WHERE account_id = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
+        if (results.next()) {
+            return mapRowToAccount(results);
+        }
+        return null;
+    }
+
+
+    @Override
+    public void updateBalance(int accountId, BigDecimal newSenderBalance) {
         String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
-        jdbcTemplate.update(sql, newSenderBalance, id);
+        jdbcTemplate.update(sql, newSenderBalance, accountId);
     }
 
     @Override
@@ -96,11 +108,32 @@ public class JdbcAccountDao implements AccountDao {
 
 
     @Override
-    public boolean saveTransfer(Transfer transfer) {
-        String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (1, 1, ?, ?, ?)";
+    public BigDecimal subtractBalance(int accountId, BigDecimal amountToSubtract) {
+        Account account = findAccountByAccountId(accountId);
+        BigDecimal newBalance = account.getBalance().subtract(amountToSubtract);
+        updateBalance(accountId, newBalance);
+        return newBalance;
+    }
 
-        return jdbcTemplate.update(sql, transfer.getFromUser(), transfer.getToUser(), transfer.getTransferAmount()) == 1;
+    @Override
+    public BigDecimal addBalance(int accountId, BigDecimal amountToAdd) {
+        Account account = findAccountByAccountId(accountId);
+        BigDecimal newBalance = account.getBalance().add(amountToAdd);
+        updateBalance(accountId, newBalance);
+        return newBalance;
+    }
+
+    @Override
+    public Transfer saveTransfer(Transfer transfer) {
+
+        String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
+                "VALUES (1, 1, ?, ?, ?) returning transfer_id";
+
+        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getFromUser(), transfer.getToUser(), transfer.getTransferAmount());
+        transfer.setTransferType(TransferType.SEND);
+        transfer.setTransferStatus(TransferStatus.APPROVED);
+        transfer.setTransferId(newTransferId);
+        return transfer;
     }
 
 
@@ -126,7 +159,7 @@ public class JdbcAccountDao implements AccountDao {
 
     @Override
     public Transfer getTransferDetails(int transferId) {
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
                 "FROM transfer " +
                 "WHERE transfer_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
@@ -179,5 +212,4 @@ public class JdbcAccountDao implements AccountDao {
         user.setUsername(results.getString("username"));
         return user;
     }
-
 }
