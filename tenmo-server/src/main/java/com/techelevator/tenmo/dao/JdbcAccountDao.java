@@ -108,18 +108,18 @@ public class JdbcAccountDao implements AccountDao {
 
 
     @Override
-    public BigDecimal subtractBalance(int accountId, BigDecimal amountToSubtract) {
-        Account account = findAccountByAccountId(accountId);
+    public BigDecimal subtractBalance(int userId, BigDecimal amountToSubtract) {
+        Account account = findAccountByUserId(userId);
         BigDecimal newBalance = account.getBalance().subtract(amountToSubtract);
-        updateBalance(accountId, newBalance);
+        updateBalance(account.getAccountId(), newBalance);
         return newBalance;
     }
 
     @Override
-    public BigDecimal addBalance(int accountId, BigDecimal amountToAdd) {
-        Account account = findAccountByAccountId(accountId);
+    public BigDecimal addBalance(int UserId, BigDecimal amountToAdd) {
+        Account account = findAccountByUserId(UserId);
         BigDecimal newBalance = account.getBalance().add(amountToAdd);
-        updateBalance(accountId, newBalance);
+        updateBalance(account.getAccountId(), newBalance);
         return newBalance;
     }
 
@@ -129,7 +129,11 @@ public class JdbcAccountDao implements AccountDao {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (1, 1, ?, ?, ?) returning transfer_id";
 
-        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getFromUser(), transfer.getToUser(), transfer.getTransferAmount());
+        int fromUser = findAccountByUserId(transfer.getFromUser()).getAccountId();
+        int toUser = findAccountByUserId(transfer.getToUser()).getAccountId();
+
+        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, fromUser,
+                toUser, transfer.getTransferAmount());
         transfer.setTransferType(TransferType.SEND);
         transfer.setTransferStatus(TransferStatus.APPROVED);
         transfer.setTransferId(newTransferId);
@@ -194,8 +198,10 @@ public class JdbcAccountDao implements AccountDao {
         transfer.setTransferId(results.getInt("transfer_id"));
         transfer.setTransferType(results.getInt("transfer_type_id"));
         transfer.setTransferStatus(results.getInt("transfer_status_id"));
-        transfer.setFromUser(results.getInt("from_user_id"));
-        transfer.setToUser(results.getInt("to_user_id"));
+        transfer.setFromUser(
+                findUserByAccountId(results.getInt("from_user_id")).getUserId());
+        transfer.setToUser(
+                findUserByAccountId(results.getInt("to_user_id")).getUserId());
         transfer.setTransferAmount(results.getBigDecimal("amount"));
         return transfer;
     }

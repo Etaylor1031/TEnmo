@@ -57,7 +57,7 @@ public class TransferController {
             return "Can't send to yourself";
         }
 
-        if(transfer.getTransferAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) == 1) {
+        if(transfer.getTransferAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) > 0) {
             return "Insufficient funds";
         }
 
