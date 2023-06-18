@@ -1,18 +1,26 @@
 package com.techelevator.tenmo.model;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 public class Transfer {
 
     // instance variable declarations
     private long transferId;
+    @JsonProperty("transferType")
     private long transferTypeId;
+    @JsonProperty("transferStatus")
     private long transferStatusId;
+    @JsonProperty("fromUser")
     private long accountFrom;
+    @JsonProperty("toUser")
     private long accountTo;
     private BigDecimal amount;
     private String transferTypeDescription;
     private String transferStatusDescription;
+    @JsonProperty("fromUserName")
     private String userFrom;
+    @JsonProperty("toUserName")
     private String userTo;
 
     public Transfer(int id, int toUserId, BigDecimal amount) {
