@@ -63,10 +63,11 @@ public class JdbcAccountDao implements AccountDao {
     @Override
     public List<Transfer> findTransfersByUserId(int userId) {
         List<Transfer> transfers = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
                 "FROM transfer " +
-                "WHERE from_user_id = ? OR to_user_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
+                "WHERE account_from = ? OR account_to = ?";
+        int accountId = findAccountByUserId(userId).getAccountId();
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
         while (results.next()) {
             Transfer transfer = mapRowToTransfer(results);
             transfers.add(transfer);
@@ -199,9 +200,9 @@ public class JdbcAccountDao implements AccountDao {
         transfer.setTransferType(results.getInt("transfer_type_id"));
         transfer.setTransferStatus(results.getInt("transfer_status_id"));
         transfer.setFromUser(
-                findUserByAccountId(results.getInt("from_user_id")).getUserId());
+                findUserByAccountId(results.getInt("account_from")).getUserId());
         transfer.setToUser(
-                findUserByAccountId(results.getInt("to_user_id")).getUserId());
+                findUserByAccountId(results.getInt("account_to")).getUserId());
         transfer.setTransferAmount(results.getBigDecimal("amount"));
         return transfer;
     }
