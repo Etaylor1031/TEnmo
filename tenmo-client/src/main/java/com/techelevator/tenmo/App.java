@@ -1,9 +1,16 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TransferService;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 public class App {
 
@@ -84,29 +91,32 @@ public class App {
         }
     }
 
-	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void viewCurrentBalance() {
+        AccountService accountService = new AccountService(API_BASE_URL, currentUser);
+        BigDecimal balance = accountService.getBalance();
+        if (balance != null) {
+            consoleService.printMessage("Your current account balance is: $" + balance);
+        } else {
+            consoleService.printErrorMessage();
+        }
+    }
 
-	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void viewTransferHistory() {
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        transferService.viewTransferHistory();
+    }
+    private void viewPendingRequests() {
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        transferService.viewPendingRequests();
+    }
 
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void sendBucks() {
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        transferService.sendBucks();
+    }
 
-	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void requestBucks() {
-		// TODO Auto-generated method stub
-		
-	}
-
+        private void requestBucks() {
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        transferService.requestBucks();
+    }
 }
