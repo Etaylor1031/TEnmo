@@ -42,6 +42,11 @@ public class TransferController {
         return accountDao.findTransfersByUserId(id);
     }
 
+    @RequestMapping(path = "transfers/details/{id}", method = RequestMethod.GET)
+    public Transfer showTransferDetails(@PathVariable int id) {
+        return accountDao.getTransferDetails(id);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/send", method = RequestMethod.POST)
     public String send(@RequestBody Transfer transfer) {
