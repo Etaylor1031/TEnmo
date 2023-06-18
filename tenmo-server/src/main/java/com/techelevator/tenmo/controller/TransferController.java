@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@PreAuthorize("isAuthenticated()")
+//@PreAuthorize("isAuthenticated()")
 public class TransferController {
     private AccountDao accountDao;
     private UserDao userDao;
@@ -40,6 +40,11 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/send", method = RequestMethod.POST)
     public String send(@RequestBody Transfer transfer) {
+        String validationFailure = checkValidTransaction(transfer);
+        if (validationFailure != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, validationFailure);
+        }
+
         accountDao.saveTransfer(transfer);
         accountDao.subtractBalance(transfer.getFromUser(), transfer.getTransferAmount());
         accountDao.addBalance(transfer.getToUser(), transfer.getTransferAmount());
@@ -47,25 +52,20 @@ public class TransferController {
         return "Success Sending Transfer";
     }
 
-    private boolean checkValidTransaction(Transfer transfer) {
+    private String checkValidTransaction(Transfer transfer) {
         if(transfer.getFromUser() == transfer.getToUser()) {
-            System.out.println("Can't send to yourself");
-            return false;
+            return "Can't send to yourself";
         }
 
         if(transfer.getTransferAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) == 1) {
-            System.out.println("Insufficient funds");
-            return false;
+            return "Insufficient funds";
         }
-
 
         if(transfer.getTransferAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
-            System.out.println("Invalid Transfer Amount");
-            return false;
+            return "Invalid Transfer Amount";
         }
 
-
-        return true;
+        return null;
     }
 
 }
