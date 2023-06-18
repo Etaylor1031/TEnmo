@@ -196,14 +196,22 @@ public class JdbcAccountDao implements AccountDao {
 
     private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();
+
         transfer.setTransferId(results.getInt("transfer_id"));
         transfer.setTransferType(results.getInt("transfer_type_id"));
         transfer.setTransferStatus(results.getInt("transfer_status_id"));
-        transfer.setFromUser(
-                findUserByAccountId(results.getInt("account_from")).getUserId());
-        transfer.setToUser(
-                findUserByAccountId(results.getInt("account_to")).getUserId());
+
+        UserPojo fromUser = findUserByAccountId(results.getInt("account_from"));
+        transfer.setFromUser(fromUser.getUserId());
+        transfer.setFromUserName(fromUser.getUsername());
+
+        UserPojo toUser = findUserByAccountId(results.getInt("account_to"));
+        transfer.setToUser(toUser.getUserId());
+        transfer.setToUserName(toUser.getUsername());
         transfer.setTransferAmount(results.getBigDecimal("amount"));
+        transfer.setTransferTypeDescription(TransferType.textTransferType(transfer.getTransferType()));
+        transfer.setTransferStatusDescription(TransferStatus.textTransferStatus(transfer.getTransferStatus()));
+
         return transfer;
     }
     private Account mapRowToAccount(SqlRowSet results) {

@@ -9,6 +9,10 @@ public class Transfer {
     private int fromUser;
     private int toUser;
     private BigDecimal transferAmount;
+    private String transferTypeDescription;
+    private String transferStatusDescription;
+    private String fromUserName;
+    private String toUserName;
 
     public int getTransferId() {
         return transferId;
@@ -58,10 +62,35 @@ public class Transfer {
         this.transferAmount = transferAmount;
     }
 
-    public void setToUserId(int toUserId) {
+    public String getTransferTypeDescription() {
+        return transferTypeDescription;
     }
 
-    public void setFromUserId(int fromUserId) {
+    public void setTransferTypeDescription(String transferTypeDescription) {
+        this.transferTypeDescription = transferTypeDescription;
     }
 
+    public String getTransferStatusDescription() {
+        return transferStatusDescription;
+    }
+
+    public void setTransferStatusDescription(String transferStatusDescription) {
+        this.transferStatusDescription = transferStatusDescription;
+    }
+
+    public String getFromUserName() {
+        return fromUserName;
+    }
+
+    public void setFromUserName(String fromUserName) {
+        this.fromUserName = fromUserName;
+    }
+
+    public String getToUserName() {
+        return toUserName;
+    }
+
+    public void setToUserName(String toUserName) {
+        this.toUserName = toUserName;
+    }
 }
