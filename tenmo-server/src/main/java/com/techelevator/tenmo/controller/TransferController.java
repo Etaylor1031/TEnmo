@@ -2,7 +2,6 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +21,9 @@ public class TransferController {
         this.userDao = userDao;
     }
 
-    @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
-    public BigDecimal getBalance(@PathVariable int id) {
-        BigDecimal balance = accountDao.findBalanceByUserId(id);
+    @RequestMapping(path = "/balance/{userId}", method = RequestMethod.GET)
+    public BigDecimal getBalance(@PathVariable int userId) {
+        BigDecimal balance = accountDao.findBalanceByUserId(userId);
         if(balance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Balance not found");
         } else {
@@ -32,48 +31,58 @@ public class TransferController {
         }
     }
 
-    @RequestMapping(path = "/accounts", method = RequestMethod.GET)
-    public List<Account> listAccounts() {
-        return accountDao.getAllAccounts();
+    @RequestMapping(path = "/transfer/{transferId}", method = RequestMethod.GET)
+    public Transfer getTransferDetails(@PathVariable int transferId) {
+        Transfer transfer = accountDao.getTransferDetails(transferId);
+        if(transfer == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transfer not found");
+        } else {
+            return transfer;
+        }
+    }
+
+    @RequestMapping(path = "/transfers/{userId}", method = RequestMethod.GET)
+    public List<Transfer> listTransfersByUserId(@PathVariable int userId) {
+        return accountDao.getTransfersByUserId(userId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/send", method = RequestMethod.POST)
-    public String send(@RequestBody Transfer transfer) {
-        //boolean success = checkValidTransaction(transfer);
+    public Transfer send(@RequestBody Transfer transfer) {
+        String validationFailure = checkValidTransaction(transfer);
+        if (validationFailure != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, validationFailure);
+        }
 
-        //(success = true)
-        accountDao.saveTransfer(transfer);
 
-        accountDao.subtractBalance(transfer.getFromUser(), transfer.getTransferAmount());
-        accountDao.addBalance(transfer.getToUser(), transfer.getTransferAmount());
+        accountDao.subtractBalance(transfer.getFromUser(), transfer.getAmount());
+        accountDao.addBalance(transfer.getToUser(), transfer.getAmount());
 
-        return "Success sending";
-        //else {
-            //System.out.println("Error sending");
-            //return null;
-        //}
+        return accountDao.saveTransfer(transfer);
     }
 
-    private boolean checkValidTransaction(Transfer transfer) {
+    private String checkValidTransaction(Transfer transfer) {
         if(transfer.getFromUser() == transfer.getToUser()) {
-            System.out.println("Can't send to yourself");
-            return false;
+            return "Can't send to yourself";
         }
 
-        if(transfer.getTransferAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) == 1) {
-            System.out.println("Insufficient funds");
-            return false;
-        }
-
-
-        if(transfer.getTransferAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
-            System.out.println("Invalid Transfer Amount");
-            return false;
+        if(transfer.getAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) == 1) {
+            return "Insufficient funds";
         }
 
 
-        return true;
+        if(transfer.getAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
+            return "Invalid Transfer Amount";
+        }
+
+        return null;
     }
+
+    /*
+    @RequestMapping(path = "/accounts", method = RequestMethod.GET)
+    public List<Account> listAccounts() {
+        return accountDao.getAllAccounts();
+    }
+     */
 
 }

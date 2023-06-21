@@ -1,18 +1,23 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TransferService;
+
+import java.math.BigDecimal;
 
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
 
     private final ConsoleService consoleService = new ConsoleService();
+    private AuthenticatedUser currentUser;
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
 
-    private AuthenticatedUser currentUser;
 
     public static void main(String[] args) {
         App app = new App();
@@ -85,12 +90,23 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		
+       AccountService accountService = new AccountService(API_BASE_URL, currentUser);
+       try {
+           BigDecimal balance = accountService.getBalance();
+           consoleService.printBalance(balance);
+       } catch(NullPointerException e) {
+           System.out.println(e.getMessage());
+       }
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        try {
+            Transfer[] transfers = transferService.getTransfers();
+            consoleService.printTransfers(transfers);
+        } catch(NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
 		
 	}
 

@@ -1,20 +1,22 @@
 package com.techelevator.tenmo.model;
-
 import java.math.BigDecimal;
 
 public class Transfer {
+
+    // instance variable declarations
     private int transferId;
-    private int transferType;
-    private int transferStatus;
-    private int fromUser;
-    private int toUser;
+    private int transferTypeId;
+    private int transferStatusId;
+    private int accountFrom;
+    private int accountTo;
     private BigDecimal amount;
-    private String transferTypeDescription;
-    private String transferStatusDescription;
     private String userFrom;
     private String userTo;
+    private String transferTypeDescription;
+    private String transferStatusDescription;
 
-    public int getTransferId() {
+    //getters and setters
+    public long getTransferId() {
         return transferId;
     }
 
@@ -22,36 +24,36 @@ public class Transfer {
         this.transferId = transferId;
     }
 
-    public int getTransferType() {
-        return transferType;
+    public long getTransferTypeId() {
+        return transferTypeId;
     }
 
-    public void setTransferType(int transferType) {
-        this.transferType = transferType;
+    public void setTransferTypeId(int transferTypeId) {
+        this.transferTypeId = transferTypeId;
     }
 
-    public int getTransferStatus() {
-        return transferStatus;
+    public long getTransferStatusId() {
+        return transferStatusId;
     }
 
-    public void setTransferStatus(int transferStatus) {
-        this.transferStatus = transferStatus;
+    public void setTransferStatusId(int transferStatusId) {
+        this.transferStatusId = transferStatusId;
     }
 
-    public int getFromUser() {
-        return fromUser;
+    public long getAccountFrom() {
+        return accountFrom;
     }
 
-    public void setFromUser(int fromUser) {
-        this.fromUser = fromUser;
+    public void setAccountFrom(int accountFrom) {
+        this.accountFrom = accountFrom;
     }
 
-    public int getToUser() {
-        return toUser;
+    public long getAccountTo() {
+        return accountTo;
     }
 
-    public void setToUser(int toUser) {
-        this.toUser = toUser;
+    public void setAccountTo(int accountTo) {
+        this.accountTo = accountTo;
     }
 
     public BigDecimal getAmount() {
@@ -60,12 +62,6 @@ public class Transfer {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
-    }
-
-    public void setToUserId(int toUserId) {
-    }
-
-    public void setFromUserId(int fromUserId) {
     }
 
     public String getTransferTypeDescription() {
@@ -99,4 +95,9 @@ public class Transfer {
     public void setUserTo(String userTo) {
         this.userTo = userTo;
     }
+
+    public String transferToString() {
+        return getTransferId() + " | From: " + getUserFrom() + " | To: " + getUserTo() + " | Balance: " + getAmount();
+    }
+
 }
