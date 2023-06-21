@@ -10,7 +10,6 @@ public interface UserDao {
 
     User getUserById(int id);
 
-
     int findIdByUsername(String username);
 
     User findByUsername(String username);
