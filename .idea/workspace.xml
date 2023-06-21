@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="31373e75-0c39-4c7f-a7e4-852caa150403" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/dao/JdbcAccountDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/dao/JdbcAccountDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/dao/JdbcUserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/dao/JdbcUserDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/dao/UserDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenmo-server/src/main/java/com/techelevator/tenmo/service.java" beforeDir="false" />
-    </list>
+    <list default="true" id="31373e75-0c39-4c7f-a7e4-852caa150403" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
