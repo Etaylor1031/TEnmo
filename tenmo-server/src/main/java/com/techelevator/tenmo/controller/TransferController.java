@@ -2,6 +2,7 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@PreAuthorize("isAuthenticated()")
+//@PreAuthorize("isAuthenticated()")
 public class TransferController {
     private AccountDao accountDao;
     private UserDao userDao;
@@ -21,9 +22,9 @@ public class TransferController {
         this.userDao = userDao;
     }
 
-    @RequestMapping(path = "/balance/{userId}", method = RequestMethod.GET)
-    public BigDecimal getBalance(@PathVariable int userId) {
-        BigDecimal balance = accountDao.findBalanceByUserId(userId);
+    @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
+    public BigDecimal getBalance(@PathVariable int id) {
+        BigDecimal balance = accountDao.findBalanceByUserId(id);
         if(balance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Balance not found");
         } else {
@@ -31,34 +32,29 @@ public class TransferController {
         }
     }
 
-    @RequestMapping(path = "/transfer/{transferId}", method = RequestMethod.GET)
-    public Transfer getTransferDetails(@PathVariable int transferId) {
-        Transfer transfer = accountDao.getTransferDetails(transferId);
-        if(transfer == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transfer not found");
-        } else {
-            return transfer;
-        }
+    @RequestMapping(path = "/transfers/{id}", method = RequestMethod.GET)
+    public List<Transfer> listTransfers(@PathVariable int id) {
+        return accountDao.findTransfersByUserId(id);
     }
 
-    @RequestMapping(path = "/transfers/{userId}", method = RequestMethod.GET)
-    public List<Transfer> listTransfersByUserId(@PathVariable int userId) {
-        return accountDao.getTransfersByUserId(userId);
+    @RequestMapping(path = "transfers/details/{id}", method = RequestMethod.GET)
+    public Transfer showTransferDetails(@PathVariable int id) {
+        return accountDao.getTransferDetails(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/send", method = RequestMethod.POST)
-    public Transfer send(@RequestBody Transfer transfer) {
+    public String send(@RequestBody Transfer transfer) {
         String validationFailure = checkValidTransaction(transfer);
         if (validationFailure != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, validationFailure);
         }
 
+        accountDao.saveTransfer(transfer);
+        accountDao.subtractBalance(transfer.getFromUser(), transfer.getTransferAmount());
+        accountDao.addBalance(transfer.getToUser(), transfer.getTransferAmount());
 
-        accountDao.subtractBalance(transfer.getFromUser(), transfer.getAmount());
-        accountDao.addBalance(transfer.getToUser(), transfer.getAmount());
-
-        return accountDao.saveTransfer(transfer);
+        return "Success Sending Transfer";
     }
 
     private String checkValidTransaction(Transfer transfer) {
@@ -66,23 +62,15 @@ public class TransferController {
             return "Can't send to yourself";
         }
 
-        if(transfer.getAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) == 1) {
+        if(transfer.getTransferAmount().compareTo(accountDao.findBalanceByUserId(transfer.getFromUser())) > 0) {
             return "Insufficient funds";
         }
 
-
-        if(transfer.getAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
+        if(transfer.getTransferAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
             return "Invalid Transfer Amount";
         }
 
         return null;
     }
-
-    /*
-    @RequestMapping(path = "/accounts", method = RequestMethod.GET)
-    public List<Account> listAccounts() {
-        return accountDao.getAllAccounts();
-    }
-     */
 
 }

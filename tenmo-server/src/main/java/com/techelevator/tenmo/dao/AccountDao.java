@@ -16,9 +16,7 @@ public interface AccountDao {
     Account findAccountByAccountId(int accountId);
 
     BigDecimal subtractBalance(int accountId, BigDecimal amountToSubtract);
-
     BigDecimal addBalance(int accountId, BigDecimal amountToAdd);
-
     Transfer findTransferByTransferId(int transferId);
 
     Transfer saveTransfer(Transfer transfer);
@@ -28,11 +26,10 @@ public interface AccountDao {
     void updateBalance(int id, BigDecimal newSenderBalance);
 
     List<Transfer> getTransfersByUserId(int userId);
-    List<Transfer> getTransfersByAccountId(int accountId);
 
     Transfer getTransferDetails(int transferId);
 
+    List<Account> getAllAccounts();
+
     int getUserIdByUsername(String username);
 }
-
-

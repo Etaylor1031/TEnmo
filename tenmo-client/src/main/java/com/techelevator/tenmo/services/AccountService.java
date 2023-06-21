@@ -1,20 +1,18 @@
 package com.techelevator.tenmo.services;
 
 
-//  Import libraries / modules
+//  Import libraries
 import java.math.BigDecimal;
-
-import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 
 public class AccountService {
+
+
     //instance variable declaration
     private String baseUrl;
     private RestTemplate restTemplate = new RestTemplate();
@@ -30,9 +28,10 @@ public class AccountService {
     public BigDecimal getBalance() {
         BigDecimal balance = new BigDecimal(0);
         try {
-            balance = restTemplate.exchange(baseUrl + "balance/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+            int userId = currentUser.getUser().getId();
+            balance = restTemplate.exchange(baseUrl + "balance/" + userId, HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+        } catch (RestClientException e) {
+            System.out.println("Error Please Try Again ");
         }
         return balance;
     }
@@ -44,9 +43,4 @@ public class AccountService {
         HttpEntity entity = new HttpEntity<>(headers);
         return entity;
     }
-
-
-
-
-
 }

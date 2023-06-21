@@ -93,19 +93,14 @@ public class ConsoleService {
         System.out.println(message);
     }
 
-
-    public void printTransfers(Transfer[] transfers) {
-        if (transfers != null) {
-            System.out.println("--------------------------------------------");
-            System.out.println("Transfers");
-            System.out.println("--------------------------------------------");
-            for (Transfer transfer : transfers) {
-                System.out.println(transfer.transferToString());
-            }
-        }
+    public void printBalance(BigDecimal balance) {
+        System.out.println("Your current balance is: $" + balance);
     }
 
-    public void printBalance(BigDecimal balance) {
-        System.out.println("Your current account balance is : $" + balance);
+    public void printTransferHistory(Transfer[] transfers) {
+        System.out.println("Transfer History:");
+        for (Transfer transfer : transfers) {
+            System.out.println(transfer.toString());
+        }
     }
 }
