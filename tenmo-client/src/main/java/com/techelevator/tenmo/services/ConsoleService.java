@@ -105,4 +105,23 @@ public class ConsoleService {
         }
     }
 
+    public void printTransferDetails(Transfer transfer) {
+        System.out.println("-------------------------------------------");
+        System.out.println("Transfer Details");
+        System.out.println("-------------------------------------------");
+        System.out.printf("Id: %d\n", transfer.getTransferId());
+        System.out.printf("From: %s\n", transfer.getFromUserName());
+        System.out.printf("To: %s\n", transfer.getToUserName());
+        System.out.printf("Type: %s\n", transfer.getTransferTypeDescription());
+        System.out.printf("Status: %s\n", transfer.getTransferStatusDescription());
+        System.out.printf("Amount: $%s\n", transfer.getTransferAmount());
+    }
+
+    public int promptForTransferId() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Please enter Transfer ID to view details: ");
+        int transferId = scanner.nextInt();
+        return transferId;
+    }
+
 }

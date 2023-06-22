@@ -7,12 +7,15 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
 
+import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
@@ -32,20 +35,29 @@ public class TransferService {
         System.out.println("Your current balance is: $" + balance);
     }
 
-    public Transfer[] viewTransferHistory() {
+    public Transfer getTransferDetails(int transferId) {
+        Transfer transfer = null;
+        try {
+            ResponseEntity<Transfer> response = restTemplate.exchange(API_BASE_URL + "transfers/details/"  + transferId, HttpMethod.GET, makeAuthEntity(), Transfer.class);
+            transfer = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return transfer;
+    }
+
+    public Transfer[] getTransfers() {
         Transfer[] transfers = null;
         try {
-                ResponseEntity<Transfer[]> response = restTemplate.exchange(
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(
                     API_BASE_URL + "transfers/" + currentUser.getUser().getId(),
                     HttpMethod.GET,
                     makeAuthEntity(),
                     Transfer[].class
             );
-
             transfers = response.getBody();
-
-        } catch (RestClientException e) {
-            System.out.println("Failed to retrieve transfer history. Please try again.");
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
         }
 
         return transfers;

@@ -98,7 +98,9 @@ public class App {
 
     private void viewTransferHistory() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        consoleService.printTransferHistory(transferService.viewTransferHistory());
+        consoleService.printTransferHistory(transferService.getTransfers());
+        int transferId = consoleService.promptForTransferId();
+        consoleService.printTransferDetails(transferService.getTransferDetails(transferId));
     }
     private void viewPendingRequests() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
