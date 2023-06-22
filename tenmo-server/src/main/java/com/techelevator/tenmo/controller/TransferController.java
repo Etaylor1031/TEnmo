@@ -32,11 +32,6 @@ public class TransferController {
         }
     }
 
-    @RequestMapping(path = "/accounts", method = RequestMethod.GET)
-    public List<Account> listAccounts() {
-        return accountDao.getAllAccounts();
-    }
-
     @RequestMapping(path = "/transfers/{id}", method = RequestMethod.GET)
     public List<Transfer> listTransfers(@PathVariable int id) {
         return accountDao.findTransfersByUserId(id);

@@ -32,27 +32,23 @@ public class TransferService {
         System.out.println("Your current balance is: $" + balance);
     }
 
-    public void viewTransferHistory() {
+    public Transfer[] viewTransferHistory() {
+        Transfer[] transfers = null;
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(currentUser.getToken());
-            HttpEntity entity = new HttpEntity(headers);
-
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(
-                    API_BASE_URL + "transfers",
+                ResponseEntity<Transfer[]> response = restTemplate.exchange(
+                    API_BASE_URL + "transfers/" + currentUser.getUser().getId(),
                     HttpMethod.GET,
-                    entity,
+                    makeAuthEntity(),
                     Transfer[].class
             );
 
-            Transfer[] transfers = response.getBody();
-            System.out.println("Transfer History:");
-            for (Transfer transfer : transfers) {
-                System.out.println(transfer.toString());
-            }
+            transfers = response.getBody();
+
         } catch (RestClientException e) {
             System.out.println("Failed to retrieve transfer history. Please try again.");
         }
+
+        return transfers;
     }
 
     public void viewPendingRequests() {
@@ -150,5 +146,11 @@ public class TransferService {
         } catch (RestClientException e) {
             System.out.println("Failed to send transfer request. Please try again.");
         }
+    }
+
+    private HttpEntity<Void> makeAuthEntity() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(currentUser.getToken());
+        return new HttpEntity<>(headers);
     }
 }

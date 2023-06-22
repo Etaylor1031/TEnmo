@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -90,6 +91,18 @@ public class ConsoleService {
 
     public void printMessage(String message) {
         System.out.println(message);
+    }
+
+    public void printBalance(BigDecimal balance) {
+        System.out.println("Your current account balance is: $" + balance);
+    }
+
+    public void printTransferHistory(Transfer[] transfers) {
+        System.out.println("Transfers");
+        for (Transfer transfer : transfers) {
+            System.out.println("Transfer ID: " + transfer.getTransferId() + " From: " + transfer.getFromUserName() + " To: " + transfer.getToUserName() +
+                    " Amount: $" + transfer.getTransferAmount());
+        }
     }
 
 }

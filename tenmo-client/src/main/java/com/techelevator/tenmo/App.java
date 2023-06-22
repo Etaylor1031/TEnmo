@@ -93,17 +93,12 @@ public class App {
 
     private void viewCurrentBalance() {
         AccountService accountService = new AccountService(API_BASE_URL, currentUser);
-        BigDecimal balance = accountService.getBalance();
-        if (balance != null) {
-            consoleService.printMessage("Your current account balance is: $" + balance);
-        } else {
-            consoleService.printErrorMessage();
-        }
+        consoleService.printBalance(accountService.getBalance());
     }
 
     private void viewTransferHistory() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        transferService.viewTransferHistory();
+        consoleService.printTransferHistory(transferService.viewTransferHistory());
     }
     private void viewPendingRequests() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
