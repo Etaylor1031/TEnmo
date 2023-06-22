@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 
@@ -97,11 +98,26 @@ public class ConsoleService {
         System.out.println("Your current account balance is: $" + balance);
     }
 
-    public void printTransferHistory(Transfer[] transfers) {
+    public void printTransferHistory(String currentUserName, Transfer[] transfers) {
+        final String ID = "ID";
+        final String FROM_TO = "From/To";
+        final String AMOUNT = "Amount";
+
+        System.out.println("-------------------------------------------");
+        System.out.println("Current User: " + currentUserName);
+        System.out.println("-------------------------------------------");
         System.out.println("Transfers");
+        System.out.printf("%-10s %-20s %-20s\n", ID, FROM_TO, AMOUNT);
+        System.out.println("-------------------------------------------");
         for (Transfer transfer : transfers) {
-            System.out.println("Transfer ID: " + transfer.getTransferId() + " From: " + transfer.getFromUserName() + " To: " + transfer.getToUserName() +
-                    " Amount: $" + transfer.getTransferAmount());
+            String fromTo = null;
+            if(currentUserName.equals(transfer.getFromUserName()))
+                fromTo = "To: " + transfer.getToUserName();
+            else if(currentUserName.equals(transfer.getToUserName()))
+                fromTo = "From: " + transfer.getFromUserName();
+
+            //System.out.printf("%-10d From: %-15s To: %-15s $ %-10s\n", transfer.getTransferId(), transfer.getFromUserName(), transfer.getToUserName(), transfer.getTransferAmount());
+            System.out.printf("%-10d %-20s $ %-20s\n", transfer.getTransferId(), fromTo, transfer.getTransferAmount());
         }
     }
 
@@ -118,7 +134,6 @@ public class ConsoleService {
     }
 
     public int promptForTransferId() {
-        Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter Transfer ID to view details: ");
         int transferId = scanner.nextInt();
         return transferId;

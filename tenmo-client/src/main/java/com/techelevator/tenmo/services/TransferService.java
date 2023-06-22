@@ -29,12 +29,6 @@ public class TransferService {
         this.restTemplate = new RestTemplate();
     }
 
-    public void viewCurrentBalance() {
-        AccountService accountService = new AccountService(API_BASE_URL, currentUser);
-        BigDecimal balance = accountService.getBalance();
-        System.out.println("Your current balance is: $" + balance);
-    }
-
     public Transfer getTransferDetails(int transferId) {
         Transfer transfer = null;
         try {
