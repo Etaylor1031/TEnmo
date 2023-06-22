@@ -109,7 +109,10 @@ public class App {
 
     private void sendBucks() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        transferService.sendBucks();
+        consoleService.printUsers(transferService.getUsers());
+        Transfer transferEnteredByUser = consoleService.promptForTransferData(currentUser.getUser().getId());
+        Transfer transfer = transferService.sendBucks(transferEnteredByUser);
+        consoleService.printTransferDetails(transfer);
     }
 
         private void requestBucks() {

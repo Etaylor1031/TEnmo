@@ -1,9 +1,6 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.TransferStatus;
-import com.techelevator.tenmo.model.TransferType;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.pojos.UserPojo;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,15 +20,15 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Account> getAllAccounts() {
-        List<Account> accounts = new ArrayList<>();
-        String sql = "SELECT account_id, user_id, balance FROM account";
+    public List<UserPojo> getUsers() {
+        List<UserPojo> users = new ArrayList<>();
+        String sql = "SELECT user_id, username FROM tenmo_user";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while (results.next()) {
-            Account account = mapRowToAccount(results);
-            accounts.add(account);
+            UserPojo userPojo = mapRowToUser(results);
+            users.add(userPojo);
         }
-        return accounts;
+        return users;
     }
 
     private Account findAccountByUserId(int userId) {
@@ -130,14 +127,18 @@ public class JdbcAccountDao implements AccountDao {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (1, 1, ?, ?, ?) returning transfer_id";
 
-        int fromUser = findAccountByUserId(transfer.getFromUser()).getAccountId();
-        int toUser = findAccountByUserId(transfer.getToUser()).getAccountId();
+        int fromAccountId = findAccountByUserId(transfer.getFromUser()).getAccountId();
+        int toAccountId = findAccountByUserId(transfer.getToUser()).getAccountId();
 
-        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, fromUser,
-                toUser, transfer.getTransferAmount());
+        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, fromAccountId,
+                toAccountId, transfer.getTransferAmount());
         transfer.setTransferType(TransferType.SEND);
         transfer.setTransferStatus(TransferStatus.APPROVED);
         transfer.setTransferId(newTransferId);
+        transfer.setTransferTypeDescription(TransferType.textTransferType(transfer.getTransferType()));
+        transfer.setTransferStatusDescription(TransferStatus.textTransferStatus(transfer.getTransferStatus()));
+        transfer.setFromUserName(getUserNameByUserId(transfer.getFromUser()));
+        transfer.setToUserName((getUserNameByUserId(transfer.getToUser())));
         return transfer;
     }
 
@@ -183,6 +184,12 @@ public class JdbcAccountDao implements AccountDao {
         } catch (EmptyResultDataAccessException e) {
             return 0; // Return 0 if the username is not found
         }
+    }
+
+    @Override
+    public String getUserNameByUserId(int userId) {
+        String sql = "SELECT username FROM tenmo_user WHERE user_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, userId);
     }
 
     private UserPojo findUserByAccountId(int accountId) {

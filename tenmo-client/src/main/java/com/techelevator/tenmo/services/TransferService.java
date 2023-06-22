@@ -4,9 +4,10 @@ import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Scanner;
 
+import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.pojos.UserPojo;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,12 +30,26 @@ public class TransferService {
         this.restTemplate = new RestTemplate();
     }
 
+    public UserPojo[] getUsers() {
+        UserPojo[] users = null;
+        try {
+            ResponseEntity<UserPojo[]> response = restTemplate.exchange(API_BASE_URL + "users", HttpMethod.GET, makeAuthEntity(), UserPojo[].class);
+            users = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to get Users.");
+            BasicLogger.log(e.getMessage());
+        }
+
+        return users;
+    }
+
     public Transfer getTransferDetails(int transferId) {
         Transfer transfer = null;
         try {
             ResponseEntity<Transfer> response = restTemplate.exchange(API_BASE_URL + "transfers/details/"  + transferId, HttpMethod.GET, makeAuthEntity(), Transfer.class);
             transfer = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to get Transfer Details.");
             BasicLogger.log(e.getMessage());
         }
         return transfer;
@@ -51,6 +66,7 @@ public class TransferService {
             );
             transfers = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to get Transfers.");
             BasicLogger.log(e.getMessage());
         }
 
@@ -80,41 +96,19 @@ public class TransferService {
         }
     }
 
-    public void sendBucks() {
-        Scanner scanner = new Scanner(System.in);
-
-        // Get user input
-        System.out.print("Enter recipient's user ID: ");
-        int toUserId = scanner.nextInt();
-        System.out.print("Enter amount to send: ");
-        BigDecimal amount = scanner.nextBigDecimal();
-
-        // Create the transfer object
-        Transfer transfer = new Transfer(currentUser.getUser().getId(), toUserId, amount);
+    public Transfer sendBucks(Transfer newTransfer) {
+        HttpEntity<Transfer> entity = makeTransferEntity(newTransfer);
+        Transfer returnedTransfer = null;
 
         // Send the transfer
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(currentUser.getToken());
-            HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
-
-            ResponseEntity<Transfer> response = restTemplate.exchange(
-                    API_BASE_URL + "transfers",
-                    HttpMethod.POST,
-                    entity,
-                    Transfer.class
-            );
-
-            Transfer sentTransfer = response.getBody();
-            if (sentTransfer != null) {
-                System.out.println("Transfer sent successfully!");
-            } else {
-                System.out.println("Failed to send transfer. Please try again.");
-            }
-        } catch (RestClientException e) {
+            returnedTransfer = restTemplate.postForObject(API_BASE_URL + "send", entity, Transfer.class);
+        } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to send transfer. Please try again.");
+            BasicLogger.log(e.getMessage());
         }
+
+        return returnedTransfer;
     }
 
     public void requestBucks() {
@@ -153,6 +147,14 @@ public class TransferService {
             System.out.println("Failed to send transfer request. Please try again.");
         }
     }
+
+    private HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(currentUser.getToken());
+        return new HttpEntity<>(transfer, headers);
+    }
+
 
     private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();

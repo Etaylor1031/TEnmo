@@ -4,6 +4,8 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.pojos.UserPojo;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +19,8 @@ import java.util.List;
 public class TransferController {
     private AccountDao accountDao;
     private UserDao userDao;
-    public TransferController(AccountDao accountDao, UserDao userDao) {
+    public TransferController(AccountDao accountDao) {
         this.accountDao = accountDao;
-        this.userDao = userDao;
     }
 
     @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
@@ -30,6 +31,11 @@ public class TransferController {
         } else {
             return balance;
         }
+    }
+
+    @RequestMapping(path = "/users", method = RequestMethod.GET)
+    public List<UserPojo> listUsers() {
+        return accountDao.getUsers();
     }
 
     @RequestMapping(path = "/transfers/{id}", method = RequestMethod.GET)
@@ -44,7 +50,7 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/send", method = RequestMethod.POST)
-    public String send(@RequestBody Transfer transfer) {
+    public Transfer send(@RequestBody Transfer transfer) {
         String validationFailure = checkValidTransaction(transfer);
         if (validationFailure != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, validationFailure);
@@ -54,7 +60,7 @@ public class TransferController {
         accountDao.subtractBalance(transfer.getFromUser(), transfer.getTransferAmount());
         accountDao.addBalance(transfer.getToUser(), transfer.getTransferAmount());
 
-        return "Success Sending Transfer";
+        return transfer;
     }
 
     private String checkValidTransaction(Transfer transfer) {

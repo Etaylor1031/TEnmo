@@ -1,9 +1,10 @@
 package com.techelevator.tenmo.services;
 
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.pojos.UserPojo;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
@@ -133,10 +134,33 @@ public class ConsoleService {
         System.out.printf("Amount: $%s\n", transfer.getTransferAmount());
     }
 
+    public void printUsers(UserPojo[] users) {
+        final String ID = "ID";
+        final String NAME = "Name";
+
+        System.out.println("-------------------------------------------");
+        System.out.println("Users");
+        System.out.printf("%-10s %-20s\n", ID, NAME);
+        System.out.println("-------------------------------------------");
+        for (UserPojo user : users) {
+            System.out.printf("%-10d %-20s\n", user.getUserId(), user.getUsername());
+        }
+    }
+
     public int promptForTransferId() {
         System.out.print("Please enter Transfer ID to view details: ");
         int transferId = scanner.nextInt();
         return transferId;
+    }
+
+    public Transfer promptForTransferData(int fromUserId) {
+        // Get user input
+        System.out.print("Enter ID of user you are sending to: ");
+        int toUserId = scanner.nextInt();
+        System.out.print("Enter amount: ");
+        BigDecimal amount = scanner.nextBigDecimal();
+
+       return new Transfer(fromUserId, toUserId, amount);
     }
 
 }
