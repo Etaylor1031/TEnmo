@@ -4,76 +4,72 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 public class Transfer {
-
-    // instance variable declarations
-    private long transferId;
-    @JsonProperty("transferType")
-    private long transferTypeId;
-    @JsonProperty("transferStatus")
-    private long transferStatusId;
-    @JsonProperty("fromUser")
-    private long accountFrom;
-    @JsonProperty("toUser")
-    private long accountTo;
-    private BigDecimal amount;
+    private int transferId;
+    private int transferType;
+    private int transferStatus;
+    private int fromUser;
+    private int toUser;
+    private BigDecimal transferAmount;
     private String transferTypeDescription;
     private String transferStatusDescription;
-    @JsonProperty("fromUserName")
-    private String userFrom;
-    @JsonProperty("toUserName")
-    private String userTo;
+    private String fromUserName;
+    private String toUserName;
 
-    public Transfer(int id, int toUserId, BigDecimal amount) {
+    public Transfer(int fromUser, int toUser, BigDecimal transferAmount) {
+        this.fromUser = fromUser;
+        this.toUser = toUser;
+        this.transferAmount = transferAmount;
     }
 
+    public Transfer() {
+    }
 
-    //getters and setters
-    public long getTransferId() {
+    public int getTransferId() {
         return transferId;
     }
 
-    public void setTransferId(long transferId) {
+    public void setTransferId(int transferId) {
         this.transferId = transferId;
     }
 
-    public long getTransferTypeId() {
-        return transferTypeId;
+    public int getTransferType() {
+        return transferType;
     }
 
-    public void setTransferTypeId(long transferTypeId) {
-        this.transferTypeId = transferTypeId;
+    public void setTransferType(int transferType) {
+        this.transferType = transferType;
     }
 
-    public long getTransferStatusId() {
-        return transferStatusId;
+    public int getTransferStatus() {
+        return transferStatus;
     }
 
-    public void setTransferStatusId(long transferStatusId) {
-        this.transferStatusId = transferStatusId;
+    public void setTransferStatus(int transferStatus) {
+        this.transferStatus = transferStatus;
     }
 
-    public long getAccountFrom() {
-        return accountFrom;
+    public int getFromUser() {
+        return fromUser;
     }
 
-    public void setAccountFrom(long accountFrom) {
-        this.accountFrom = accountFrom;
+    public void setFromUser(int fromUser) {
+        this.fromUser = fromUser;
     }
 
-    public long getAccountTo() {
-        return accountTo;
+    public int getToUser() {
+        return toUser;
     }
 
-    public void setAccountTo(long accountTo) {
-        this.accountTo = accountTo;
+    public void setToUser(int toUser) {
+        this.toUser = toUser;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getTransferAmount() {
+        return transferAmount;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setTransferAmount(BigDecimal transferAmount) {
+        this.transferAmount = transferAmount;
     }
 
     public String getTransferTypeDescription() {
@@ -92,19 +88,19 @@ public class Transfer {
         this.transferStatusDescription = transferStatusDescription;
     }
 
-    public String getUserFrom() {
-        return userFrom;
+    public String getFromUserName() {
+        return fromUserName;
     }
 
-    public void setUserFrom(String userFrom) {
-        this.userFrom = userFrom;
+    public void setFromUserName(String fromUserName) {
+        this.fromUserName = fromUserName;
     }
 
-    public String getUserTo() {
-        return userTo;
+    public String getToUserName() {
+        return toUserName;
     }
 
-    public void setUserTo(String userTo) {
-        this.userTo = userTo;
+    public void setToUserName(String toUserName) {
+        this.toUserName = toUserName;
     }
 }
