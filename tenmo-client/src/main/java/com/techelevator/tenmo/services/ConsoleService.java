@@ -123,6 +123,11 @@ public class ConsoleService {
     }
 
     public void printTransferDetails(Transfer transfer) {
+        if(transfer == null) {
+            System.out.println("Transfer is empty");
+            return;
+        }
+
         System.out.println("-------------------------------------------");
         System.out.println("Transfer Details");
         System.out.println("-------------------------------------------");
@@ -153,12 +158,34 @@ public class ConsoleService {
         return transferId;
     }
 
-    public Transfer promptForTransferData(int fromUserId) {
-        // Get user input
-        System.out.print("Enter ID of user you are sending to: ");
-        int toUserId = scanner.nextInt();
-        System.out.print("Enter amount: ");
-        BigDecimal amount = scanner.nextBigDecimal();
+    public Transfer promptForTransferData(int fromUserId, BigDecimal balance) {
+        int toUserId;
+        BigDecimal amount;
+
+        while(true) {
+            System.out.print("Enter ID of user you are sending to: ");
+            toUserId = scanner.nextInt();
+            if(fromUserId == toUserId)
+                System.out.println("You cannot send to yourself.");
+            else
+                break;
+        }
+
+        while(true) {
+            System.out.print("Enter amount: ");
+            amount = scanner.nextBigDecimal();
+            if(amount.compareTo(BigDecimal.valueOf(0)) <= 0) {
+                System.out.println("Invalid Transfer Amount");
+            }
+
+            else if(amount.compareTo(balance) > 0) {
+                System.out.println("Insufficient funds");
+            }
+
+            else {
+                break;
+            }
+         }
 
        return new Transfer(fromUserId, toUserId, amount);
     }

@@ -6,7 +6,6 @@ import com.techelevator.tenmo.model.Transfer;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
-import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.pojos.UserPojo;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
@@ -58,12 +57,7 @@ public class TransferService {
     public Transfer[] getTransfers() {
         Transfer[] transfers = null;
         try {
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(
-                    API_BASE_URL + "transfers/" + currentUser.getUser().getId(),
-                    HttpMethod.GET,
-                    makeAuthEntity(),
-                    Transfer[].class
-            );
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), Transfer[].class);
             transfers = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to get Transfers.");

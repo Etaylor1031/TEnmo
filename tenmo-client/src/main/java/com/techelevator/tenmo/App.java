@@ -108,9 +108,11 @@ public class App {
     }
 
     private void sendBucks() {
+        AccountService accountService = new AccountService(API_BASE_URL, currentUser);
+        BigDecimal balance = accountService.getBalance();
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
         consoleService.printUsers(transferService.getUsers());
-        Transfer transferEnteredByUser = consoleService.promptForTransferData(currentUser.getUser().getId());
+        Transfer transferEnteredByUser = consoleService.promptForTransferData(currentUser.getUser().getId(), balance);
         Transfer transfer = transferService.sendBucks(transferEnteredByUser);
         consoleService.printTransferDetails(transfer);
     }
