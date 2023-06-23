@@ -1,6 +1,7 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.*;
+import com.techelevator.tenmo.pojos.UserPojo;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
@@ -95,14 +96,19 @@ public class App {
 
     private void viewTransferHistory() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        consoleService.printTransferHistory(currentUser.getUser().getUsername(), transferService.getTransfers());
-        int transferId = consoleService.promptForTransferId();
+        Transfer[] transfers = transferService.getTransfers();
+        consoleService.printTransferHistory(currentUser.getUser().getUsername(), transfers);
+        int transferId = consoleService.promptForTransferId(transfers);
+        if(transferId == 0)
+            return;
+
         consoleService.printTransferDetails(transferService.getTransferDetails(transferId));
     }
     private void viewPendingRequests() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        consoleService.printPendingTransfers(currentUser.getUser().getUsername(), transferService.getPendingTransfers());
-        int transferId = consoleService.promptForTransferIdToApproveOrReject();
+        Transfer[] pendingTransfers = transferService.getPendingTransfers();
+        consoleService.printPendingTransfers(currentUser.getUser().getUsername(), pendingTransfers);
+        int transferId = consoleService.promptForTransferIdToApproveOrReject(pendingTransfers);
         if(transferId == 0)
             return;
 
@@ -129,8 +135,12 @@ public class App {
         AccountService accountService = new AccountService(API_BASE_URL, currentUser);
         BigDecimal balance = accountService.getBalance();
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        consoleService.printUsers(transferService.getUsers());
-        Transfer transferEnteredByUser = consoleService.promptForSendTransferData(currentUser.getUser().getId(), balance);
+        UserPojo[] users = transferService.getUsers();
+        consoleService.printUsers(users);
+        Transfer transferEnteredByUser = consoleService.promptForSendTransferData(currentUser.getUser().getId(), balance, users);
+        if(transferEnteredByUser == null)
+            return;
+
         Transfer transfer = transferService.sendBucks(transferEnteredByUser);
         consoleService.printTransferDetails(transfer);
     }
@@ -139,8 +149,12 @@ public class App {
         AccountService accountService = new AccountService(API_BASE_URL, currentUser);
         BigDecimal balance = accountService.getBalance();
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        consoleService.printUsers(transferService.getUsers());
-        Transfer transferEnteredByUser = consoleService.promptForRequestTransferData(currentUser.getUser().getId(), balance);
+        UserPojo[] users = transferService.getUsers();
+        consoleService.printUsers(users);
+        Transfer transferEnteredByUser = consoleService.promptForRequestTransferData(currentUser.getUser().getId(), balance, users);
+        if(transferEnteredByUser == null)
+            return;
+
         Transfer transfer = transferService.requestBucks(transferEnteredByUser);
         consoleService.printTransferDetails(transfer);
     }

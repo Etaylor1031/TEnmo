@@ -94,7 +94,10 @@ public class ConsoleService {
     }
 
     public void printBalance(BigDecimal balance) {
+        System.out.println();
+        System.out.println("-------------------------------------------");
         System.out.println("Your current account balance is: $" + balance);
+        System.out.println("-------------------------------------------");
     }
 
     public void printTransferHistory(String currentUserName, Transfer[] transfers) {
@@ -102,6 +105,7 @@ public class ConsoleService {
         final String FROM_TO = "From/To";
         final String AMOUNT = "Amount";
 
+        System.out.println();
         System.out.println("-------------------------------------------");
         System.out.println("Current User: " + currentUserName);
         System.out.println("-------------------------------------------");
@@ -118,6 +122,7 @@ public class ConsoleService {
             //System.out.printf("%-10d From: %-15s To: %-15s $ %-10s\n", transfer.getTransferId(), transfer.getFromUserName(), transfer.getToUserName(), transfer.getTransferAmount());
             System.out.printf("%-10d %-20s $ %-20s\n", transfer.getTransferId(), fromTo, transfer.getTransferAmount());
         }
+        System.out.println("-------------------------------------------");
     }
 
     public void printPendingTransfers(String currentUserName, Transfer[] transfers) {
@@ -125,6 +130,7 @@ public class ConsoleService {
         final String FROM_TO = "To";
         final String AMOUNT = "Amount";
 
+        System.out.println();
         System.out.println("-------------------------------------------");
         System.out.println("Current User: " + currentUserName);
         System.out.println("-------------------------------------------");
@@ -134,6 +140,7 @@ public class ConsoleService {
         for (Transfer transfer : transfers) {
             System.out.printf("%-10d %-20s $ %-20s\n", transfer.getTransferId(), transfer.getToUserName(), transfer.getTransferAmount());
         }
+        System.out.println("-------------------------------------------");
     }
 
     public void printTransferDetails(Transfer transfer) {
@@ -142,6 +149,7 @@ public class ConsoleService {
             return;
         }
 
+        System.out.println();
         System.out.println("-------------------------------------------");
         System.out.println("Transfer Details");
         System.out.println("-------------------------------------------");
@@ -151,12 +159,14 @@ public class ConsoleService {
         System.out.printf("Type: %s\n", transfer.getTransferTypeDescription());
         System.out.printf("Status: %s\n", transfer.getTransferStatusDescription());
         System.out.printf("Amount: $%s\n", transfer.getTransferAmount());
+        System.out.println("-------------------------------------------");
     }
 
     public void printUsers(UserPojo[] users) {
         final String ID = "ID";
         final String NAME = "Name";
 
+        System.out.println();
         System.out.println("-------------------------------------------");
         System.out.println("Users");
         System.out.printf("%-10s %-20s\n", ID, NAME);
@@ -164,36 +174,57 @@ public class ConsoleService {
         for (UserPojo user : users) {
             System.out.printf("%-10d %-20s\n", user.getUserId(), user.getUsername());
         }
+        System.out.println("-------------------------------------------");
     }
 
-    public int promptForTransferId() {
-        System.out.print("Please enter Transfer ID to view details: ");
-        int transferId = scanner.nextInt();
-        return transferId;
+    public int promptForTransferId(Transfer[] transfers) {
+        while(true) {
+            System.out.print("Please enter Transfer ID to view details (0 to cancel): ");
+            int transferId = scanner.nextInt();
+            if(transferId == 0)
+                return 0;
+
+            if (!transferIdExists(transfers, transferId)) {
+                System.out.println("Transfer ID does not exist. Please enter a valid Transfer ID.");
+            }
+
+            else
+                return transferId;
+        }
     }
 
-    public Transfer promptForSendTransferData(int fromUserId, BigDecimal balance) {
+    public Transfer promptForSendTransferData(int fromUserId, BigDecimal balance, UserPojo[] users) {
         int toUserId;
         BigDecimal amount;
 
         while(true) {
-            System.out.print("Enter ID of user you are sending to: ");
+            System.out.print("Enter ID of user you are sending to (0 to cancel): ");
             toUserId = scanner.nextInt();
-            if(fromUserId == toUserId)
-                System.out.println("You cannot send to yourself.");
+            if(toUserId == 0)
+                return null;
+
+            if(fromUserId == toUserId) {
+                System.out.println("You cannot send to yourself. Please enter a valid User ID.");
+                continue;
+            }
+
+            if(!userIdExists(users, toUserId))
+                System.out.println("User does not exist. Please enter a valid User ID.");
+
             else
                 break;
+
         }
 
         while(true) {
             System.out.print("Enter amount: ");
             amount = scanner.nextBigDecimal();
             if(amount.compareTo(BigDecimal.valueOf(0)) <= 0) {
-                System.out.println("Invalid Transfer Amount");
+                System.out.println("Invalid Transfer Amount. Please enter amount greater than 0.");
             }
 
             else if(amount.compareTo(balance) > 0) {
-                System.out.println("Insufficient funds");
+                System.out.println("Insufficient funds. Please enter an amount less than your balance.");
             }
 
             else {
@@ -204,15 +235,26 @@ public class ConsoleService {
        return new Transfer(TransferType.SEND, TransferStatus.APPROVED, fromUserId, toUserId, amount);
     }
 
-    public Transfer promptForRequestTransferData(int toUserId, BigDecimal balance) {
+    public Transfer promptForRequestTransferData(int toUserId, BigDecimal balance, UserPojo[] users) {
         int fromUserId;
         BigDecimal amount;
 
         while(true) {
-            System.out.print("Enter ID of user you are requesting from: ");
+            System.out.print("Enter ID of user you are requesting from (0 to cancel): ");
             fromUserId = scanner.nextInt();
-            if(fromUserId == toUserId)
-                System.out.println("You cannot request to yourself.");
+            if(fromUserId == 0)
+                return null;
+
+            if(fromUserId == toUserId) {
+                System.out.println("You cannot request to yourself. Please enter a valid User ID.");
+                continue;
+            }
+
+
+            if(!userIdExists(users, fromUserId)) {
+                System.out.println("User does not exist. Please enter a valid User ID.");
+            }
+
             else
                 break;
         }
@@ -221,11 +263,11 @@ public class ConsoleService {
             System.out.print("Enter amount: ");
             amount = scanner.nextBigDecimal();
             if(amount.compareTo(BigDecimal.valueOf(0)) <= 0) {
-                System.out.println("Invalid Transfer Amount");
+                System.out.println("Invalid Transfer Amount. Please enter amount greater than 0.");
             }
 
             else if(amount.compareTo(balance) > 0) {
-                System.out.println("Insufficient funds");
+                System.out.println("Insufficient funds. Please enter an amount less than your balance.");
             }
 
             else {
@@ -236,10 +278,20 @@ public class ConsoleService {
         return new Transfer(TransferType.REQUEST, TransferStatus.PENDING, fromUserId, toUserId, amount);
     }
 
-    public int promptForTransferIdToApproveOrReject() {
-        System.out.print("Please enter Transfer ID to approve/reject (0 to cancel): ");
-        int transferId = scanner.nextInt();
-        return transferId;
+    public int promptForTransferIdToApproveOrReject(Transfer[] pendingTransfers) {
+        while(true) {
+            System.out.print("Please enter Transfer ID to approve/reject (0 to cancel): ");
+            int transferId = scanner.nextInt();
+            if(transferId == 0)
+                return 0;
+
+            if (!transferIdExists(pendingTransfers, transferId)) {
+                System.out.println("Transfer ID does not exist. Please enter a valid Transfer ID.");
+            }
+
+            else
+                return transferId;
+        }
     }
 
     public void printApproveOrRejectMenu() {
@@ -254,5 +306,24 @@ public class ConsoleService {
         System.out.print("Please choose an option: ");
         int choice = scanner.nextInt();
         return choice;
+    }
+
+
+    private boolean userIdExists(UserPojo[] users, int userId) {
+        for(UserPojo user : users) {
+            if(user.getUserId() == userId)
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean transferIdExists(Transfer[] transfers, int transferId) {
+        for(Transfer transfer : transfers) {
+            if(transfer.getTransferId() == transferId)
+                return true;
+        }
+
+        return false;
     }
 }

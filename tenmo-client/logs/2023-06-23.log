@@ -1,3 +1,8 @@
 2023-06-23T08:41:11.4985818 400 : [{"timestamp":"2023-06-23T15:41:11.483+00:00","status":400,"error":"Bad Request","message":"Failed to convert value of type 'java.lang.String' to required type 'int'; nested exception is java.lang.NumberFormatException: For input string: \"pending\"","path":"/transfers/pending"}]
 2023-06-23T09:53:50.7409341 401 : [no body]
 2023-06-23T09:56:35.5288871 500 : [{"timestamp":"2023-06-23T16:56:35.521+00:00","status":500,"error":"Internal Server Error","message":"Cannot invoke \"com.techelevator.tenmo.model.Account.getAccountId()\" because the return value of \"com.techelevator.tenmo.dao.JdbcAccountDao.findAccountByUserId(int)\" is null","path":"/request"}]
+2023-06-23T11:12:52.6458371 401 : [no body]
+2023-06-23T11:13:07.6473535 401 : [no body]
+2023-06-23T11:13:13.4355207 500 : [{"timestamp":"2023-06-23T18:13:13.433+00:00","status":500,"error":"Internal Server Error","message":"PreparedStatementCallback; SQL [INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETU... (528 bytes)]
+2023-06-23T11:14:48.8379989 500 : [{"timestamp":"2023-06-23T18:14:48.830+00:00","status":500,"error":"Internal Server Error","message":"Cannot invoke \"com.techelevator.tenmo.model.Account.getAccountId()\" because the return value of \"com.techelevator.tenmo.dao.JdbcAccountDao.findAccountByUserId(int)\" is null","path":"/send"}]
+2023-06-23T11:42:47.4194667 500 : [{"timestamp":"2023-06-23T18:42:47.412+00:00","status":500,"error":"Internal Server Error","message":"Cannot invoke \"com.techelevator.tenmo.model.Account.getAccountId()\" because the return value of \"com.techelevator.tenmo.dao.JdbcAccountDao.findAccountByUserId(int)\" is null","path":"/send"}]

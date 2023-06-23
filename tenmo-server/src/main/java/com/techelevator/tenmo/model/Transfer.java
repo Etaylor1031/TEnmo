@@ -14,7 +14,9 @@ public class Transfer {
     private String fromUserName;
     private String toUserName;
 
-    public Transfer(int fromUser, int toUser, BigDecimal transferAmount) {
+    public Transfer(int transferType, int transferStatus, int fromUser, int toUser, BigDecimal transferAmount) {
+        this.transferType = transferType;
+        this.transferStatus = transferStatus;
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.transferAmount = transferAmount;
