@@ -2,10 +2,6 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
-
-import java.math.BigDecimal;
-import java.util.Scanner;
-
 import com.techelevator.tenmo.model.TransferStatus;
 import com.techelevator.tenmo.pojos.UserPojo;
 import com.techelevator.util.BasicLogger;
