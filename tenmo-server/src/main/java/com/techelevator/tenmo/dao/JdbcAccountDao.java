@@ -2,7 +2,6 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.pojos.UserPojo;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -20,68 +19,10 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<UserPojo> getUsers() {
-        List<UserPojo> users = new ArrayList<>();
-        String sql = "SELECT user_id, username FROM tenmo_user";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-        while (results.next()) {
-            UserPojo userPojo = mapRowToUser(results);
-            users.add(userPojo);
-        }
-        return users;
-    }
-
-    private Account findAccountByUserId(int userId) {
-        String sql = "SELECT account_id, user_id, balance FROM account WHERE user_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
-        if (results.next()) {
-            return mapRowToAccount(results);
-        }
-        return null;
-    }
-
-    @Override
-    public void updateBalance(int accountId, BigDecimal newSenderBalance) {
-        String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
-        jdbcTemplate.update(sql, newSenderBalance, accountId);
-    }
-
-    @Override
-    public List<Transfer> getTransfersByUserId(int userId) {
-        List<Transfer> transfers = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfer " +
-                "WHERE account_from = ? OR account_to = ?";
-        int accountId = findAccountByUserId(userId).getAccountId();
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
-        while (results.next()) {
-            Transfer transfer = mapRowToTransfer(results);
-            transfers.add(transfer);
-        }
-        return transfers;
-    }
-
-    @Override
-    public List<Transfer> getPendingTransfersByUserId(int userId) {
-        List<Transfer> pendingTransfers = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfer " +
-                "WHERE account_from = ? AND transfer_status_id = ?";
-        int accountId = findAccountByUserId(userId).getAccountId();
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, TransferStatus.PENDING);
-        while (results.next()) {
-            Transfer transfer = mapRowToTransfer(results);
-            pendingTransfers.add(transfer);
-        }
-        return pendingTransfers;
-    }
-
-    @Override
     public BigDecimal getBalanceByUserId(int userId) {
         String sql = "SELECT balance FROM account WHERE user_id = ?";
         return jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
     }
-
 
     @Override
     public BigDecimal subtractBalance(int userId, BigDecimal amountToSubtract) {
@@ -100,7 +41,46 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public Transfer save(Transfer transfer) {
+    public List<UserPojo> getUsers() {
+        List<UserPojo> users = new ArrayList<>();
+        String sql = "SELECT user_id, username FROM tenmo_user";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while (results.next()) {
+            UserPojo userPojo = mapRowToUser(results);
+            users.add(userPojo);
+        }
+        return users;
+    }
+
+    @Override
+    public Transfer getTransferDetails(int transferId) {
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfer " +
+                "WHERE transfer_id = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+        if (results.next()) {
+            return mapRowToTransfer(results);
+        }
+        return null;
+    }
+
+    @Override
+    public List<Transfer> getTransfersByUserId(int userId) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfer " +
+                "WHERE account_from = ? OR account_to = ?";
+        int accountId = findAccountByUserId(userId).getAccountId();
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
+        while (results.next()) {
+            Transfer transfer = mapRowToTransfer(results);
+            transfers.add(transfer);
+        }
+        return transfers;
+    }
+
+    @Override
+    public Transfer saveTransfer(Transfer transfer) {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (?, ?, ?, ?, ?) returning transfer_id";
 
@@ -117,6 +97,20 @@ public class JdbcAccountDao implements AccountDao {
         return transfer;
     }
 
+    @Override
+    public List<Transfer> getPendingTransfersByUserId(int userId) {
+        List<Transfer> pendingTransfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfer " +
+                "WHERE account_from = ? AND transfer_status_id = ?";
+        int accountId = findAccountByUserId(userId).getAccountId();
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, TransferStatus.PENDING);
+        while (results.next()) {
+            Transfer transfer = mapRowToTransfer(results);
+            pendingTransfers.add(transfer);
+        }
+        return pendingTransfers;
+    }
 
     @Override
     public Transfer updateTransferStatus(Transfer transfer, int transferId) {
@@ -125,22 +119,23 @@ public class JdbcAccountDao implements AccountDao {
         return transfer;
     }
 
-    @Override
-    public Transfer getTransferDetails(int transferId) {
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfer " +
-                "WHERE transfer_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
-        if (results.next()) {
-            return mapRowToTransfer(results);
-        }
-        return null;
+    private void updateBalance(int accountId, BigDecimal newSenderBalance) {
+        String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
+        jdbcTemplate.update(sql, newSenderBalance, accountId);
     }
 
-    @Override
-    public String getUserNameByUserId(int userId) {
+    private String getUserNameByUserId(int userId) {
         String sql = "SELECT username FROM tenmo_user WHERE user_id = ?";
         return jdbcTemplate.queryForObject(sql, String.class, userId);
+    }
+
+    private Account findAccountByUserId(int userId) {
+        String sql = "SELECT account_id, user_id, balance FROM account WHERE user_id = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+        if (results.next()) {
+            return mapRowToAccount(results);
+        }
+        return null;
     }
 
     private UserPojo findUserByAccountId(int accountId) {

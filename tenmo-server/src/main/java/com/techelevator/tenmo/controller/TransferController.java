@@ -20,7 +20,6 @@ import java.util.List;
 //@PreAuthorize("isAuthenticated()")
 public class TransferController {
     private AccountDao accountDao;
-    private UserDao userDao;
     public TransferController(AccountDao accountDao) {
         this.accountDao = accountDao;
     }
@@ -58,7 +57,7 @@ public class TransferController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, validationFailure);
         }
 
-        accountDao.save(transfer);
+        accountDao.saveTransfer(transfer);
         accountDao.subtractBalance(transfer.getFromUser(), transfer.getTransferAmount());
         accountDao.addBalance(transfer.getToUser(), transfer.getTransferAmount());
 
@@ -68,7 +67,7 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/request", method = RequestMethod.POST)
     public Transfer request(@RequestBody Transfer transfer) {
-        return accountDao.save(transfer);
+        return accountDao.saveTransfer(transfer);
     }
 
     @RequestMapping(path = "/transfers/pending/{id}", method = RequestMethod.GET)
