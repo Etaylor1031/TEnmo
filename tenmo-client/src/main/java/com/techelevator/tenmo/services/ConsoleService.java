@@ -1,9 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.pojos.UserPojo;
 
 import java.math.BigDecimal;
@@ -122,6 +120,22 @@ public class ConsoleService {
         }
     }
 
+    public void printPendingTransfers(String currentUserName, Transfer[] transfers) {
+        final String ID = "ID";
+        final String FROM_TO = "To";
+        final String AMOUNT = "Amount";
+
+        System.out.println("-------------------------------------------");
+        System.out.println("Current User: " + currentUserName);
+        System.out.println("-------------------------------------------");
+        System.out.println("Pending Transfers");
+        System.out.printf("%-10s %-20s %-20s\n", ID, FROM_TO, AMOUNT);
+        System.out.println("-------------------------------------------");
+        for (Transfer transfer : transfers) {
+            System.out.printf("%-10d %-20s $ %-20s\n", transfer.getTransferId(), transfer.getToUserName(), transfer.getTransferAmount());
+        }
+    }
+
     public void printTransferDetails(Transfer transfer) {
         if(transfer == null) {
             System.out.println("Transfer is empty");
@@ -158,7 +172,7 @@ public class ConsoleService {
         return transferId;
     }
 
-    public Transfer promptForTransferData(int fromUserId, BigDecimal balance) {
+    public Transfer promptForSendTransferData(int fromUserId, BigDecimal balance) {
         int toUserId;
         BigDecimal amount;
 
@@ -187,7 +201,58 @@ public class ConsoleService {
             }
          }
 
-       return new Transfer(fromUserId, toUserId, amount);
+       return new Transfer(TransferType.SEND, TransferStatus.APPROVED, fromUserId, toUserId, amount);
     }
 
+    public Transfer promptForRequestTransferData(int toUserId, BigDecimal balance) {
+        int fromUserId;
+        BigDecimal amount;
+
+        while(true) {
+            System.out.print("Enter ID of user you are requesting from: ");
+            fromUserId = scanner.nextInt();
+            if(fromUserId == toUserId)
+                System.out.println("You cannot request to yourself.");
+            else
+                break;
+        }
+
+        while(true) {
+            System.out.print("Enter amount: ");
+            amount = scanner.nextBigDecimal();
+            if(amount.compareTo(BigDecimal.valueOf(0)) <= 0) {
+                System.out.println("Invalid Transfer Amount");
+            }
+
+            else if(amount.compareTo(balance) > 0) {
+                System.out.println("Insufficient funds");
+            }
+
+            else {
+                break;
+            }
+        }
+
+        return new Transfer(TransferType.REQUEST, TransferStatus.PENDING, fromUserId, toUserId, amount);
+    }
+
+    public int promptForTransferIdToApproveOrReject() {
+        System.out.print("Please enter Transfer ID to approve/reject (0 to cancel): ");
+        int transferId = scanner.nextInt();
+        return transferId;
+    }
+
+    public void printApproveOrRejectMenu() {
+        System.out.println("-------------------------------------------");
+        System.out.println("1: Approve");
+        System.out.println("2: Reject");
+        System.out.println("0: Exit");
+        System.out.println("-------------------------------------------");
+    }
+
+    public int promptForApproveOrRejectMenu() {
+        System.out.print("Please choose an option: ");
+        int choice = scanner.nextInt();
+        return choice;
+    }
 }

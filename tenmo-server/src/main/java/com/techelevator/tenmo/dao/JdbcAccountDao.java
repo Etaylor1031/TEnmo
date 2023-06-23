@@ -41,24 +41,13 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public Account findAccountByAccountId(int accountId) {
-        String sql = "SELECT account_id, user_id, balance FROM account WHERE account_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
-        if (results.next()) {
-            return mapRowToAccount(results);
-        }
-        return null;
-    }
-
-
-    @Override
     public void updateBalance(int accountId, BigDecimal newSenderBalance) {
         String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
         jdbcTemplate.update(sql, newSenderBalance, accountId);
     }
 
     @Override
-    public List<Transfer> findTransfersByUserId(int userId) {
+    public List<Transfer> getTransfersByUserId(int userId) {
         List<Transfer> transfers = new ArrayList<>();
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
                 "FROM transfer " +
@@ -73,12 +62,13 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Transfer> findPendingTransfersByUserId(int userId) {
+    public List<Transfer> getPendingTransfersByUserId(int userId) {
         List<Transfer> pendingTransfers = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
                 "FROM transfer " +
-                "WHERE (from_user_id = ? OR to_user_id = ?) AND transfer_status_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId, TransferStatus.PENDING);
+                "WHERE account_from = ? AND transfer_status_id = ?";
+        int accountId = findAccountByUserId(userId).getAccountId();
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, TransferStatus.PENDING);
         while (results.next()) {
             Transfer transfer = mapRowToTransfer(results);
             pendingTransfers.add(transfer);
@@ -87,21 +77,9 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public BigDecimal findBalanceByUserId(int userId) {
+    public BigDecimal getBalanceByUserId(int userId) {
         String sql = "SELECT balance FROM account WHERE user_id = ?";
         return jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
-    }
-
-    @Override
-    public Transfer findTransferByTransferId(int transferId) {
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
-                "FROM transfer " +
-                "WHERE transfer_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
-        if (results.next()) {
-            return mapRowToTransfer(results);
-        }
-        return null;
     }
 
 
@@ -122,18 +100,15 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public Transfer saveTransfer(Transfer transfer) {
-
+    public Transfer save(Transfer transfer) {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (1, 1, ?, ?, ?) returning transfer_id";
+                "VALUES (?, ?, ?, ?, ?) returning transfer_id";
 
         int fromAccountId = findAccountByUserId(transfer.getFromUser()).getAccountId();
         int toAccountId = findAccountByUserId(transfer.getToUser()).getAccountId();
 
-        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, fromAccountId,
+        Integer newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferType(), transfer.getTransferStatus(), fromAccountId,
                 toAccountId, transfer.getTransferAmount());
-        transfer.setTransferType(TransferType.SEND);
-        transfer.setTransferStatus(TransferStatus.APPROVED);
         transfer.setTransferId(newTransferId);
         transfer.setTransferTypeDescription(TransferType.textTransferType(transfer.getTransferType()));
         transfer.setTransferStatusDescription(TransferStatus.textTransferStatus(transfer.getTransferStatus()));
@@ -144,23 +119,10 @@ public class JdbcAccountDao implements AccountDao {
 
 
     @Override
-    public void updateTransferStatus(Transfer transfer) {
+    public Transfer updateTransferStatus(Transfer transfer, int transferId) {
         String sql = "UPDATE transfer SET transfer_status_id = ? WHERE transfer_id = ?";
-        jdbcTemplate.update(sql, transfer.getTransferStatus(), transfer.getTransferId());
-    }
-
-    @Override
-    public List<Transfer> getTransfersByUserId(int userId) {
-        List<Transfer> transfers = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, from_user_id, to_user_id, amount " +
-                "FROM transfer " +
-                "WHERE from_user_id = ? OR to_user_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
-        while (results.next()) {
-            Transfer transfer = mapRowToTransfer(results);
-            transfers.add(transfer);
-        }
-        return transfers;
+        jdbcTemplate.update(sql, transfer.getTransferStatus(), transferId);
+        return transfer;
     }
 
     @Override
@@ -173,17 +135,6 @@ public class JdbcAccountDao implements AccountDao {
             return mapRowToTransfer(results);
         }
         return null;
-    }
-
-    @Override
-    public int getUserIdByUsername(String username) {
-        String sql = "SELECT user_id FROM tenmo_user WHERE username = ?";
-        try {
-            Integer userId = jdbcTemplate.queryForObject(sql, Integer.class, username);
-            return userId != null ? userId : 0; // Return 0 if userId is null
-        } catch (EmptyResultDataAccessException e) {
-            return 0; // Return 0 if the username is not found
-        }
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.techelevator.tenmo.model.Transfer;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
+import com.techelevator.tenmo.model.TransferStatus;
 import com.techelevator.tenmo.pojos.UserPojo;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
@@ -32,7 +33,11 @@ public class TransferService {
     public UserPojo[] getUsers() {
         UserPojo[] users = null;
         try {
-            ResponseEntity<UserPojo[]> response = restTemplate.exchange(API_BASE_URL + "users", HttpMethod.GET, makeAuthEntity(), UserPojo[].class);
+            ResponseEntity<UserPojo[]> response = restTemplate.exchange(
+                    API_BASE_URL + "users",
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    UserPojo[].class);
             users = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to get Users.");
@@ -45,7 +50,11 @@ public class TransferService {
     public Transfer getTransferDetails(int transferId) {
         Transfer transfer = null;
         try {
-            ResponseEntity<Transfer> response = restTemplate.exchange(API_BASE_URL + "transfers/details/"  + transferId, HttpMethod.GET, makeAuthEntity(), Transfer.class);
+            ResponseEntity<Transfer> response = restTemplate.exchange(
+                    API_BASE_URL + "transfers/details/"  + transferId,
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Transfer.class);
             transfer = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to get Transfer Details.");
@@ -57,7 +66,12 @@ public class TransferService {
     public Transfer[] getTransfers() {
         Transfer[] transfers = null;
         try {
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(
+                    API_BASE_URL + "transfers/" + currentUser.getUser().getId(),
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Transfer[].class);
+
             transfers = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to get Transfers.");
@@ -67,36 +81,31 @@ public class TransferService {
         return transfers;
     }
 
-    public void viewPendingRequests() {
+    public Transfer[] getPendingTransfers() {
+        Transfer[] transfers = null;
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(currentUser.getToken());
-            HttpEntity entity = new HttpEntity(headers);
-
             ResponseEntity<Transfer[]> response = restTemplate.exchange(
-                    API_BASE_URL + "transfers/pending",
+                    API_BASE_URL + "transfers/pending/" + currentUser.getUser().getId(),
                     HttpMethod.GET,
-                    entity,
-                    Transfer[].class
-            );
+                    makeAuthEntity(),
+                    Transfer[].class);
 
-            Transfer[] transfers = response.getBody();
-            System.out.println("Pending Requests:");
-            for (Transfer transfer : transfers) {
-                System.out.println(transfer.toString());
-            }
-        } catch (RestClientException e) {
+            transfers = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to retrieve pending requests. Please try again.");
+            BasicLogger.log(e.getMessage());
         }
+
+        return transfers;
     }
 
     public Transfer sendBucks(Transfer newTransfer) {
         HttpEntity<Transfer> entity = makeTransferEntity(newTransfer);
         Transfer returnedTransfer = null;
 
-        // Send the transfer
         try {
             returnedTransfer = restTemplate.postForObject(API_BASE_URL + "send", entity, Transfer.class);
+
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to send transfer. Please try again.");
             BasicLogger.log(e.getMessage());
@@ -105,41 +114,36 @@ public class TransferService {
         return returnedTransfer;
     }
 
-    public void requestBucks() {
-        Scanner scanner = new Scanner(System.in);
+    public Transfer requestBucks(Transfer newTransfer) {
+        HttpEntity<Transfer> entity = makeTransferEntity(newTransfer);
+        Transfer returnedTransfer = null;
 
-        // Get user input
-        System.out.print("Enter sender's user ID: ");
-        int fromUserId = scanner.nextInt();
-        System.out.print("Enter amount to request: ");
-        BigDecimal amount = scanner.nextBigDecimal();
-
-        // Create the transfer object
-        Transfer transfer = new Transfer(fromUserId, currentUser.getUser().getId(), amount);
-
-        // Send the transfer request
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(currentUser.getToken());
-            HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
+            returnedTransfer = restTemplate.postForObject(API_BASE_URL + "request", entity, Transfer.class);
 
-            ResponseEntity<Transfer> response = restTemplate.exchange(
-                    API_BASE_URL + "transfers/request",
-                    HttpMethod.POST,
-                    entity,
-                    Transfer.class
-            );
-
-            Transfer requestedTransfer = response.getBody();
-            if (requestedTransfer != null) {
-                System.out.println("Transfer request sent successfully!");
-            } else {
-                System.out.println("Failed to send transfer request. Please try again.");
-            }
-        } catch (RestClientException e) {
-            System.out.println("Failed to send transfer request. Please try again.");
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to request transfer. Please try again.");
+            BasicLogger.log(e.getMessage());
         }
+
+        return returnedTransfer;
+    }
+
+    public boolean updateTransfer(int transferId, int transferStatus) {
+        Transfer updatedTransfer = getTransferDetails(transferId);
+        updatedTransfer.setTransferStatus(transferStatus);
+        updatedTransfer.setTransferStatusDescription(TransferStatus.textTransferStatus(updatedTransfer.getTransferStatus()));
+
+        HttpEntity<Transfer> entity = makeTransferEntity(updatedTransfer);
+        boolean success = false;
+        try {
+            restTemplate.put(API_BASE_URL + "transfers/" + transferId, entity);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to update transfer");
+            BasicLogger.log(e.getMessage());
+        }
+        return success;
     }
 
     private HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {

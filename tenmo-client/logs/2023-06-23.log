@@ -1,0 +1,3 @@
+2023-06-23T08:41:11.4985818 400 : [{"timestamp":"2023-06-23T15:41:11.483+00:00","status":400,"error":"Bad Request","message":"Failed to convert value of type 'java.lang.String' to required type 'int'; nested exception is java.lang.NumberFormatException: For input string: \"pending\"","path":"/transfers/pending"}]
+2023-06-23T09:53:50.7409341 401 : [no body]
+2023-06-23T09:56:35.5288871 500 : [{"timestamp":"2023-06-23T16:56:35.521+00:00","status":500,"error":"Internal Server Error","message":"Cannot invoke \"com.techelevator.tenmo.model.Account.getAccountId()\" because the return value of \"com.techelevator.tenmo.dao.JdbcAccountDao.findAccountByUserId(int)\" is null","path":"/request"}]

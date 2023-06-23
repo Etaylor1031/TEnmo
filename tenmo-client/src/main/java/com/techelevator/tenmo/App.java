@@ -1,9 +1,6 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
@@ -104,7 +101,28 @@ public class App {
     }
     private void viewPendingRequests() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        transferService.viewPendingRequests();
+        consoleService.printPendingTransfers(currentUser.getUser().getUsername(), transferService.getPendingTransfers());
+        int transferId = consoleService.promptForTransferIdToApproveOrReject();
+        if(transferId == 0)
+            return;
+
+        int choice = -1;
+        while (choice != 0) {
+            consoleService.printApproveOrRejectMenu();
+            choice = consoleService.promptForApproveOrRejectMenu();
+            if (choice == 1) {
+                transferService.updateTransfer(transferId, TransferStatus.APPROVED);
+                break;
+            } else if (choice == 2) {
+                transferService.updateTransfer(transferId, TransferStatus.REJECTED);
+                break;
+            } else if (choice == 0) {
+                continue;
+            } else {
+                consoleService.printMessage("Invalid Selection");
+            }
+            consoleService.pause();
+        }
     }
 
     private void sendBucks() {
@@ -112,13 +130,18 @@ public class App {
         BigDecimal balance = accountService.getBalance();
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
         consoleService.printUsers(transferService.getUsers());
-        Transfer transferEnteredByUser = consoleService.promptForTransferData(currentUser.getUser().getId(), balance);
+        Transfer transferEnteredByUser = consoleService.promptForSendTransferData(currentUser.getUser().getId(), balance);
         Transfer transfer = transferService.sendBucks(transferEnteredByUser);
         consoleService.printTransferDetails(transfer);
     }
 
-        private void requestBucks() {
+    private void requestBucks() {
+        AccountService accountService = new AccountService(API_BASE_URL, currentUser);
+        BigDecimal balance = accountService.getBalance();
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        transferService.requestBucks();
+        consoleService.printUsers(transferService.getUsers());
+        Transfer transferEnteredByUser = consoleService.promptForRequestTransferData(currentUser.getUser().getId(), balance);
+        Transfer transfer = transferService.requestBucks(transferEnteredByUser);
+        consoleService.printTransferDetails(transfer);
     }
 }
