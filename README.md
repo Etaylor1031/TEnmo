@@ -1,67 +1,60 @@
-TEnmo RESTful API Server and Command-Line Application
-TEnmo is an online payment service that allows users to transfer a virtual currency called "TE bucks" between friends. This project involves the development of a RESTful API server and a command-line application to facilitate various operations related to user registration, authentication, balance inquiries, and money transfers.
+# TEnmo RESTful API Server and Command-Line Application
 
-Use Cases
-The following use cases are implemented in the TEnmo application:
+TEnmo is an online payment service that enables users to transfer a virtual currency called "TE bucks" among friends. This project consists of a RESTful API server and a command-line application that facilitate various operations, including user registration, authentication, balance inquiries, and money transfers.
 
-User Registration: Users can register themselves by providing a username and password. A new registered user is assigned an initial balance of 1,000 TE Bucks.
+## Use Cases
 
-User Login: Users can log in using their registered username and password. Upon successful login, an authentication token is generated, which needs to be included in subsequent interactions with the system.
+The TEnmo application supports the following use cases:
 
-Account Balance Inquiry: Authenticated users can view their current account balance.
+1. **User Registration**: Users can register by providing a username and password. Upon registration, a new user is assigned an initial balance of 1,000 TE Bucks.
 
-Sending TE Bucks: Authenticated users can send a specific amount of TE Bucks to another registered user. Users can choose from a list of available recipients, and the transfer deducts the amount from the sender's account and adds it to the receiver's account.
+2. **User Login**: Users can log in using their registered username and password. Successful login generates an authentication token that must be included in subsequent interactions with the system.
 
-Viewing Transfers: Authenticated users can view the transfers they have sent or received. The transfers are listed with their IDs, sender/receiver names, and transfer amounts.
+3. **Account Balance Inquiry**: Authenticated users can view their current account balance.
 
-Transfer Details: Authenticated users can retrieve detailed information about any transfer by providing the transfer ID.
+4. **TE Bucks Transfer**: Authenticated users can send a specific amount of TE Bucks to another registered user. Users can select a recipient from a list, and the transfer deducts the amount from the sender's account and adds it to the receiver's account.
 
-Database Schema
-The TEnmo application uses a PostgreSQL database with the following schema:
+5. **Transfer Viewing**: Authenticated users can view the transfers they have sent or received. Transfers are listed with their IDs, sender/receiver names, and transfer amounts.
 
-tenmo_user: Stores user login information.
+6. **Transfer Details**: Authenticated users can retrieve detailed information about any transfer by providing the transfer ID.
 
-user_id: Unique identifier of the user.
-username: User's username for login.
-password_hash: Hashed version of the user's password.
-role: User's role within the system.
-account: Stores user accounts and balances.
+## Database Schema
 
-account_id: Unique identifier of the account.
-user_id: Foreign key referencing the tenmo_user table.
-balance: Amount of TE bucks in the account.
-transfer_type: Stores types of transfers.
+The TEnmo application utilizes a PostgreSQL database with the following schema:
 
-transfer_type_id: Unique identifier of the transfer type.
-transfer_type_desc: Description of the transfer type.
-transfer_status: Stores statuses of transfers.
+- **tenmo_user**: Stores user login information.
+  - `user_id`: Unique identifier of the user.
+  - `username`: User's username for login.
+  - `password_hash`: Hashed version of the user's password.
+  - `role`: User's role within the system.
 
-transfer_status_id: Unique identifier of the transfer status.
-transfer_status_desc: Description of the transfer status.
-transfer: Stores transfer details.
+- **account**: Stores user account information.
+  - `account_id`: Unique identifier of the account.
+  - `user_id`: Foreign key referencing the `tenmo_user` table, identifies the account owner.
+  - `balance`: The amount of TE bucks in the account.
 
-transfer_id: Unique identifier of the transfer.
-transfer_type_id: Foreign key referencing the transfer_type table.
-transfer_status_id: Foreign key referencing the transfer_status table.
-account_from: Foreign key referencing the account table for the sender's account.
-account_to: Foreign key referencing the account table for the receiver's account.
-amount: Amount of TE bucks transferred.
-How to Set Up the Database
-To set up the database for the TEnmo application:
+- **transfer_type**: Stores the types of transfers.
+  - `transfer_type_id`: Unique identifier of the transfer type.
+  - `transfer_type_desc`: Description of the transfer type.
 
-Create a new PostgreSQL database named tenmo.
-Run the tenmo.sql script provided in the database folder to create the necessary tables and seed initial data.
-Authentication
-The user registration and authentication functionality for the system has already been implemented. Upon successful login, an authentication token is generated for the user, which needs to be included in subsequent interactions with the system as a header.
+- **transfer_status**: Stores the statuses of transfers.
+  - `transfer_status_id`: Unique identifier of the transfer status.
+  - `transfer_status_desc`: Description of the transfer status.
 
-Command-Line Application
-The command-line application provides an interface for users to interact with the TEnmo system. It displays a menu of options and prompts the user for input to perform different operations, such as viewing account balance, sending TE bucks, and viewing transfers.
+- **transfer**: Stores information about TE bucks transfers.
+  - `transfer_id`: Unique identifier of the transfer.
+  - `transfer_type_id`: Foreign key referencing the `transfer_type` table, identifies the transfer type.
+  - `transfer_status_id`: Foreign key referencing the `transfer_status` table, identifies the transfer status.
+  - `account_from`: Foreign key referencing the `account` table, identifies the sender's account.
+  - `account_to`: Foreign key referencing the `account` table, identifies the receiver's account.
+  - `amount`: The amount of TE bucks being transferred.
 
-To run the command-line application:
+## Getting Started
 
-Set up the database and ensure it is running.
-Start the TEnmo RESTful API server.
-Run the TEnmo command-line application.
+1. Make sure you have a PostgreSQL database named `tenmo` set up and running.
+2. Start the TEnmo RESTful API server.
+3. Run the TEnmo command-line application.
+
 The command-line application interacts with the TEnmo RESTful API server by making HTTP requests to perform different operations. The API server provides endpoints for user registration, login, account balance inquiry, TE bucks transfer, and transfer retrieval.
 
 You can refer to the API documentation for details on the available endpoints and their usage.
